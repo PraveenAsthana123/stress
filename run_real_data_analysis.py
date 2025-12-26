@@ -1,9 +1,21 @@
 #!/usr/bin/env python3
 """
+================================================================================
 Real Data Analysis Pipeline for GenAI-RAG-EEG
+================================================================================
 
-Runs complete analysis using actual SAM-40 dataset.
-Updates paper tables with real computed values.
+Runs complete analysis using real EEG datasets (DEAP, SAM-40, WESAD).
+Falls back to synthetic data when real datasets are not available.
+
+Supported Datasets:
+    - DEAP: 32 subjects, 40 trials each (emotion/stress from music videos)
+    - SAM-40: 40 subjects, stress-inducing cognitive tasks
+    - WESAD: 15 subjects, wearable stress detection
+
+Usage:
+    python run_real_data_analysis.py
+
+================================================================================
 """
 
 import os
@@ -16,29 +28,100 @@ from scipy import signal
 from scipy.stats import ttest_ind
 
 # Add project to path
-sys.path.insert(0, str(Path(__file__).parent))
-
-from src.data.real_data_loader import load_sam40_dataset, SAM40Config
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "src"))
+sys.path.insert(0, str(project_root / "data"))
 
 np.random.seed(42)
 
 print("=" * 80)
-print("GenAI-RAG-EEG Real Data Analysis")
-print("Using SAM-40 Dataset")
+print("GenAI-RAG-EEG: Real Data Analysis Pipeline")
+print("IEEE Sensors Journal 2024")
 print("=" * 80)
 print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 print()
 
 # ============================================================================
-# LOAD REAL DATA
+# CHECK FOR REAL DATA
 # ============================================================================
 
-print("[1/6] Loading SAM-40 dataset...")
-data, labels, metadata = load_sam40_dataset(data_type="filtered")
+print("[0/6] Checking for real datasets...")
 
-fs = metadata["sampling_rate"]
-n_channels = metadata["n_channels"]
+try:
+    from real_data_loader import RealDataLoader
+    real_loader = RealDataLoader('data')
+    available_datasets = real_loader.detect_dataset()
+    print(f"  DEAP:  {'FOUND' if available_datasets['DEAP'] else 'Not found'}")
+    print(f"  SAM-40: {'FOUND' if available_datasets['SAM40'] else 'Not found'}")
+    print(f"  WESAD: {'FOUND' if available_datasets['WESAD'] else 'Not found'}")
+    HAS_REAL_LOADER = True
+except ImportError as e:
+    print(f"  Real data loader not available: {e}")
+    available_datasets = {'DEAP': False, 'SAM40': False, 'WESAD': False}
+    HAS_REAL_LOADER = False
 
+# Use synthetic data if no real data available
+USE_SYNTHETIC = not any(available_datasets.values())
+
+if USE_SYNTHETIC:
+    print("\n  No real datasets found. Using SYNTHETIC data for demonstration.")
+    print("  For real data, download datasets to data/ directory.")
+    print("  See data/real_data_loader.py for download instructions.")
+
+print()
+
+# ============================================================================
+# LOAD DATA (REAL OR SYNTHETIC)
+# ============================================================================
+
+print("[1/6] Loading dataset...")
+
+if USE_SYNTHETIC:
+    # Generate synthetic data with realistic stress patterns
+    print("  Generating synthetic EEG data...")
+    from sample.sample_eeg_data import generate_sample_data
+
+    X_train, y_train, X_test, y_test = generate_sample_data(n_samples=400)
+    data = np.concatenate([X_train, X_test], axis=0)
+    labels = np.concatenate([y_train, y_test], axis=0)
+
+    fs = 256.0
+    n_channels = data.shape[1]
+    dataset_name = "Synthetic"
+    metadata = {
+        "sampling_rate": fs,
+        "n_channels": n_channels,
+        "n_stress": int((labels == 1).sum()),
+        "n_baseline": int((labels == 0).sum())
+    }
+else:
+    # Load real data - prefer DEAP > SAM40 > WESAD
+    from analysis.data_analysis import EEGDataLoader
+    loader = EEGDataLoader('data')
+
+    if available_datasets.get('DEAP', False):
+        dataset_name = "DEAP"
+        data, labels, subjects, info = loader.load_dataset('deap')
+    elif available_datasets.get('SAM40', False):
+        dataset_name = "SAM-40"
+        data, labels, subjects, info = loader.load_dataset('sam40')
+    elif available_datasets.get('WESAD', False):
+        dataset_name = "WESAD"
+        data, labels, subjects, info = loader.load_dataset('wesad')
+    else:
+        raise RuntimeError("No datasets available!")
+
+    fs = info.sampling_rate
+    n_channels = info.n_channels
+    metadata = {
+        "sampling_rate": fs,
+        "n_channels": n_channels,
+        "n_stress": int((labels == 1).sum()),
+        "n_baseline": int((labels == 0).sum())
+    }
+
+print(f"  Dataset: {dataset_name}")
 print(f"  Data shape: {data.shape}")
 print(f"  Sampling rate: {fs} Hz")
 print(f"  Stress: {metadata['n_stress']}, Baseline: {metadata['n_baseline']}")
@@ -108,7 +191,7 @@ for band_name, (low, high) in frequency_bands.items():
         "t_statistic": round(float(t_stat), 4),
         "p_value": float(p_value),
         "effect_size_d": round(float(cohens_d), 4),
-        "significant": p_value < 0.05
+        "significant": bool(p_value < 0.05)
     }
     band_power_results.append(result)
     print(f"    {band_name}: d={cohens_d:.3f}, p={p_value:.6f}")
@@ -128,7 +211,7 @@ alpha_suppression = {
     "suppression_percent": round(float(alpha_suppression_pct), 2),
     "t_statistic": round(float(t_alpha), 4),
     "p_value": float(p_alpha),
-    "significant": p_alpha < 0.05
+    "significant": bool(p_alpha < 0.05)
 }
 print(f"    Alpha suppression: {alpha_suppression_pct:.1f}%")
 
@@ -151,7 +234,7 @@ tbr_results = {
     "effect_size_d": round(float(d_tbr), 4),
     "t_statistic": round(float(t_tbr), 4),
     "p_value": float(p_tbr),
-    "significant": p_tbr < 0.05
+    "significant": bool(p_tbr < 0.05)
 }
 print(f"    TBR change: {tbr_delta_pct:.1f}%, d={d_tbr:.3f}")
 
@@ -184,7 +267,7 @@ faa_results = {
     "delta_faa": round(float(faa_delta), 4),
     "t_statistic": round(float(t_faa), 4),
     "p_value": float(p_faa),
-    "significant": p_faa < 0.05,
+    "significant": bool(p_faa < 0.05),
     "interpretation": "Right dominance (stress)" if faa_delta < 0 else "Left dominance"
 }
 print(f"    FAA delta: {faa_delta:.4f} ({faa_results['interpretation']})")
@@ -289,8 +372,8 @@ print("[4/6] Saving results...")
 results = {
     "metadata": {
         "generated_at": datetime.now().isoformat(),
-        "dataset": "SAM-40",
-        "data_source": "REAL",
+        "dataset": dataset_name,
+        "data_source": "SYNTHETIC" if USE_SYNTHETIC else "REAL",
         "n_samples": int(len(labels)),
         "n_stress": int(metadata["n_stress"]),
         "n_baseline": int(metadata["n_baseline"]),
@@ -318,14 +401,14 @@ print(f"  Saved: {report_path}")
 testing_report = {
     "test_date": datetime.now().isoformat(),
     "status": "SUCCESS",
-    "data_source": "REAL SAM-40 DATASET",
-    "datasets_tested": ["SAM-40"],
+    "data_source": f"{'SYNTHETIC' if USE_SYNTHETIC else 'REAL'} {dataset_name} DATASET",
+    "datasets_tested": [dataset_name],
     "total_samples": int(len(labels)),
     "classification": {
-        "SAM-40": classification_results
+        dataset_name: classification_results
     },
     "signal_analysis": {
-        "SAM-40": {
+        dataset_name: {
             "alpha_suppression": alpha_suppression["suppression_percent"],
             "tbr_change": tbr_results["delta_percent"],
             "faa_delta": faa_results["delta_faa"]
@@ -346,13 +429,16 @@ print()
 
 print("[5/6] Generating LaTeX tables...")
 
+# Define data type for labeling
+data_type = "SYNTHETIC" if USE_SYNTHETIC else "REAL"
+
 latex_content = f"""% Auto-generated LaTeX tables for GenAI-RAG-EEG paper
-% Generated from REAL SAM-40 dataset: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
+% Generated from {data_type} {dataset_name} dataset: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 % Classification Performance (Table 7)
 \\begin{{table}}[htbp]
-\\caption{{Classification Performance on SAM-40 Dataset (Real Data)}}
-\\label{{tab:classification_sam40}}
+\\caption{{Classification Performance on {dataset_name} Dataset ({data_type} Data)}}
+\\label{{tab:classification_{dataset_name.lower().replace('-', '')}}}
 \\centering
 \\begin{{tabular}}{{lc}}
 \\toprule
@@ -460,9 +546,10 @@ print()
 print("[6/6] Analysis Summary")
 print("=" * 80)
 print()
-print("REAL DATA ANALYSIS RESULTS (SAM-40)")
+data_type = "SYNTHETIC" if USE_SYNTHETIC else "REAL"
+print(f"{data_type} DATA ANALYSIS RESULTS ({dataset_name})")
 print("-" * 60)
-print(f"Dataset: SAM-40 (Real EEG Data)")
+print(f"Dataset: {dataset_name} ({data_type} EEG Data)")
 print(f"Total samples: {len(labels)}")
 print(f"Stress: {metadata['n_stress']}, Baseline: {metadata['n_baseline']}")
 print()

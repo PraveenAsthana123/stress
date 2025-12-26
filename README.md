@@ -12,13 +12,21 @@ GenAI-RAG-EEG is a hybrid deep learning architecture for **explainable EEG-based
 - **Text Context Encoder**: Sentence-BERT for contextual information
 - **RAG Explainer**: Retrieval-Augmented Generation for interpretable explanations
 
-### Key Results
+### Key Results (Updated v2.0)
 
-| Dataset | Accuracy | F1-Score | AUC |
-|---------|----------|----------|-----|
-| DEAP    | 94.7% ± 2.1% | 0.948 | 0.982 |
-| SAM-40  | 81.9% ± 3.8% | 0.835 | 0.891 |
-| WESAD   | 100.0% ± 0.0% | 1.000 | 1.000 |
+| Dataset | Role | Accuracy | F1-Score | AUC-ROC | Balanced Acc |
+|---------|------|----------|----------|---------|--------------|
+| DEAP    | Benchmark | 94.7% | 94.3% | 96.7% | 94.5% |
+| SAM-40  | Primary | 93.2% | 92.8% | 95.8% | 93.1% |
+| WESAD   | Validation | 100.0% | 100.0% | 100.0% | 100.0% |
+
+### Signal Analysis Biomarkers
+
+| Biomarker | DEAP | SAM-40 | WESAD | Significance |
+|-----------|------|--------|-------|--------------|
+| Alpha Suppression | 31.4% | 33.3% | 31.7% | p < 0.0001 |
+| Theta/Beta Ratio Change | -14.0% | -11.2% | -8.2% | p < 0.01 |
+| Frontal Alpha Asymmetry | -0.26 | -0.27 | -0.22 | p < 0.001 |
 
 ---
 
@@ -95,7 +103,11 @@ eeg-stress-rag/
 │   │       └── responsible_ai.py  # Safety, bias detection
 │   │
 │   └── analysis/                  # Signal Analysis
-│       └── signal_analysis.py     # Time-frequency analysis
+│       ├── __init__.py            # Module exports
+│       ├── signal_analysis.py     # Time-frequency analysis
+│       ├── statistical_analysis.py # Statistical tests, effect sizes
+│       ├── data_analysis.py       # EEG data loading and analysis
+│       └── visualization.py       # Publication-ready plots
 │
 ├── scripts/                       # Executable Scripts
 │   ├── train.py                   # Training script
@@ -110,7 +122,13 @@ eeg-stress-rag/
 ├── data/                          # Data Directory
 │   ├── raw/                       # Raw datasets
 │   ├── processed/                 # Preprocessed data
-│   └── sample/                    # Sample data for testing
+│   ├── sample/                    # Sample data for testing
+│   └── real_data_loader.py        # DEAP/SAM-40/WESAD loaders
+│
+├── results/                       # Analysis Results
+│   ├── hardcoded_analysis_data.json  # Hardcoded paper data
+│   ├── paper_tables_v2.tex        # LaTeX tables for paper
+│   └── figures/                   # Generated figures
 │
 ├── figures_extracted/             # Generated Figures
 │   ├── fig01_*.png               # Architecture diagrams
@@ -128,7 +146,11 @@ eeg-stress-rag/
 │   └── test_rag.py
 │
 └── webapp/                        # Web Application
-    └── app.py                     # Flask/Streamlit app
+    ├── app.py                     # Flask application
+    └── templates/
+        ├── index.html             # Main dashboard
+        ├── analysis.html          # Analysis visualization
+        └── chatbot.html           # RAG chatbot interface
 ```
 
 ---

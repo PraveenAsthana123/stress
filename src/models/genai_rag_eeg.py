@@ -104,15 +104,20 @@ Data Flow:
     4. Fused features → Classifier → logits + probabilities
     5. Prediction + features → RAG Explainer → explanation
 
-Parameter Count:
+Parameter Count (Actual Implementation):
     Component          | Trainable | Frozen
     -------------------|-----------|--------
-    EEG Encoder        | 138,081   | 0
+    EEG Encoder        | 105,056   | 0
     Text Encoder       | 49,280    | 22.7M
-    Fusion Layer       | 16,512    | 0
+    Fusion Layer       | 32,896    | 0
     Classification     | 10,402    | 0
     -------------------|-----------|--------
-    Total              | 214,275   | 22.7M
+    Total              | 197,634   | 22.7M
+
+    EEG-only variant: 131,970 trainable params (encoder + fusion + classifier)
+
+    Note: Paper v2 Table XIX reports different values (138,081 for EEG encoder).
+    Discrepancy due to internal paper inconsistencies in LSTM input dimensions.
 
 Performance (10-fold CV):
     Dataset  | Accuracy | F1-Score | AUC
@@ -128,9 +133,12 @@ Usage:
     >>> print(output["probs"])  # Stress probability
 
 References:
-    [1] Koelstra et al., "DEAP: A Database for Emotion Analysis using
+    [1] "GenAI-RAG-EEG: A Novel Hybrid Deep Learning Architecture for
+        Explainable EEG-Based Stress Classification using Generative AI
+        and Retrieval-Augmented Generation," IEEE Sensors Journal, 2024.
+    [2] Koelstra et al., "DEAP: A Database for Emotion Analysis using
         Physiological Signals," IEEE Trans. Affective Computing, 2012.
-    [2] Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive
+    [3] Lewis et al., "Retrieval-Augmented Generation for Knowledge-Intensive
         NLP Tasks," NeurIPS 2020.
 
 License: MIT License
@@ -293,14 +301,17 @@ class GenAIRAGEEG(nn.Module):
     """
     GenAI-RAG-EEG: Complete model for explainable EEG stress classification.
 
-    Components:
-    1. EEG Encoder: 1D-CNN + Bi-LSTM + Attention (~138K params)
-    2. Text Encoder: Sentence-BERT + Projection (~49K params)
-    3. Fusion Layer: Multimodal feature combination
-    4. Classification Head: Stress prediction (~10K params)
+    Reference: Paper v2, IEEE Sensors Journal 2024
+
+    Components (Actual Implementation):
+    1. EEG Encoder: 1D-CNN + Bi-LSTM + Attention (105,056 params)
+    2. Text Encoder: Sentence-BERT + Projection (49,280 trainable, 22.7M frozen)
+    3. Fusion Layer: Multimodal feature combination (32,896 params)
+    4. Classification Head: Stress prediction (10,402 params)
     5. RAG Explainer: Evidence-based explanation generation
 
-    Total Trainable Parameters: ~159,372
+    Total Trainable Parameters: 197,634 (with text encoder)
+    Total Trainable Parameters: 131,970 (EEG-only variant)
     """
 
     def __init__(

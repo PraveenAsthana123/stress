@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GenAI-RAG-EEG | Analysis Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #4F46E5;
+            --primary-light: #818CF8;
+            --secondary: #10B981;
+            --accent: #F59E0B;
+            --danger: #EF4444;
+            --bg-primary: #0F172A;
+            --bg-secondary: #1E293B;
+            --bg-card: #1E293B;
+            --text-primary: #F1F5F9;
+            --text-secondary: #94A3B8;
+            --border: #334155;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container { max-width: 1400px; margin: 0 auto; }
+
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, #7C3AED 100%);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 30px;
+        }
+
+        .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
+        .header .subtitle { color: rgba(255,255,255,0.8); }
+        .header .data-source {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 8px;
+            display: inline-block;
+            font-size: 0.85rem;
+        }
+
+        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
+        .nav a {
+            padding: 12px 24px;
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            text-decoration: none;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .nav a:hover, .nav a.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .grid { display: grid; gap: 20px; }
+        .grid-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+        @media (max-width: 1000px) {
+            .grid-3, .grid-2 { grid-template-columns: 1fr; }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid var(--border);
+        }
+
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+
+        .stat-box {
+            background: var(--bg-primary);
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            margin-top: 5px;
+        }
+
+        .dataset-card {
+            border-left: 4px solid var(--primary);
+        }
+        .dataset-card.deap { border-color: #3B82F6; }
+        .dataset-card.sam40 { border-color: #10B981; }
+        .dataset-card.wesad { border-color: #F59E0B; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+
+        th { color: var(--text-secondary); font-weight: 500; }
+
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .badge-success { background: var(--secondary); color: white; }
+        .badge-warning { background: var(--accent); color: black; }
+        .badge-primary { background: var(--primary); color: white; }
+
+        .chart-container { height: 300px; }
+
+        .metric-bar {
+            height: 8px;
+            background: var(--bg-primary);
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        .metric-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            border-radius: 4px;
+        }
+
+        .signal-analysis { margin-top: 20px; }
+        .signal-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .signal-item:last-child { border-bottom: none; }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+        }
+
+        #data-status {
+            padding: 10px 20px;
+            background: var(--secondary);
+            color: white;
+            border-radius: 8px;
+            display: inline-block;
+            margin-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>GenAI-RAG-EEG Analysis Dashboard</h1>
+            <div class="subtitle">IEEE Sensors Journal 2024 - Real-Time Data Visualization</div>
+            <div class="data-source">
+                Data Source: <strong>results/hardcoded_analysis_data.json</strong>
+                <span id="data-status">Loading...</span>
+            </div>
+        </div>
+
+        <div class="nav">
+            <a href="/" class="active">Dashboard</a>
+            <a href="/chatbot">RAG Chatbot</a>
+        </div>
+
+        <!-- Overview Stats -->
+        <div class="card" style="margin-bottom: 20px;">
+            <div class="card-title">Classification Performance Summary</div>
+            <div class="stat-grid" id="summary-stats">
+                <div class="stat-box">
+                    <div class="stat-value" id="avg-accuracy">--</div>
+                    <div class="stat-label">Avg. Accuracy</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="avg-f1">--</div>
+                    <div class="stat-label">Avg. F1 Score</div>
+                </div>
+                <div class="stat-box">
+                    <div class="stat-value" id="avg-auc">--</div>
+                    <div class="stat-label">Avg. AUC-ROC</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dataset Cards -->
+        <div class="grid grid-3" id="dataset-cards">
+            <div class="loading">Loading datasets...</div>
+        </div>
+
+        <!-- Charts -->
+        <div class="grid grid-2" style="margin-top: 20px;">
+            <div class="card">
+                <div class="card-title">Performance Comparison</div>
+                <div class="chart-container">
+                    <canvas id="performanceChart"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Baseline Comparison</div>
+                <div class="chart-container">
+                    <canvas id="baselineChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signal Analysis -->
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">Signal Analysis Summary</div>
+            <div id="signal-analysis">
+                <div class="loading">Loading signal analysis...</div>
+            </div>
+        </div>
+
+        <!-- Feature Importance -->
+        <div class="card" style="margin-top: 20px;">
+            <div class="card-title">Top Feature Importance</div>
+            <table id="feature-table">
+                <thead>
+                    <tr>
+                        <th>Rank</th>
+                        <th>Feature</th>
+                        <th>Importance</th>
+                        <th>p-value</th>
+                    </tr>
+                </thead>
+                <tbody id="feature-tbody">
+                    <tr><td colspan="4" class="loading">Loading...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script>
+        // Load data from API
+        async function loadData() {
+            try {
+                const response = await fetch('/api/hardcoded-data');
+                const data = await response.json();
+
+                document.getElementById('data-status').textContent = 'Loaded';
+                document.getElementById('data-status').style.background = '#10B981';
+
+                renderData(data);
+            } catch (error) {
+                document.getElementById('data-status').textContent = 'Error';
+                document.getElementById('data-status').style.background = '#EF4444';
+                console.error('Error loading data:', error);
+            }
+        }
+
+        function renderData(data) {
+            const datasets = data.datasets || {};
+
+            // Calculate averages
+            let totalAcc = 0, totalF1 = 0, totalAuc = 0, count = 0;
+            Object.values(datasets).forEach(ds => {
+                const clf = ds.classification || {};
+                totalAcc += clf.accuracy || 0;
+                totalF1 += clf.f1_score || 0;
+                totalAuc += clf.auc_roc || 0;
+                count++;
+            });
+
+            document.getElementById('avg-accuracy').textContent = (totalAcc / count).toFixed(1) + '%';
+            document.getElementById('avg-f1').textContent = (totalF1 / count).toFixed(1) + '%';
+            document.getElementById('avg-auc').textContent = (totalAuc / count).toFixed(1) + '%';
+
+            // Render dataset cards
+            const cardsHtml = Object.entries(datasets).map(([name, ds]) => {
+                const clf = ds.classification || {};
+                const info = ds.info || {};
+                const cssClass = name.toLowerCase().replace('-', '');
+
+                return `
+                    <div class="card dataset-card ${cssClass}">
+                        <div class="card-title">${name} <span class="badge badge-primary">${info.subjects || '--'} subjects</span></div>
+
+                        <div class="signal-analysis">
+                            <div class="signal-item">
+                                <span>Accuracy</span>
+                                <strong>${clf.accuracy || '--'}%</strong>
+                            </div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: ${clf.accuracy || 0}%"></div></div>
+
+                            <div class="signal-item">
+                                <span>F1 Score</span>
+                                <strong>${clf.f1_score || '--'}%</strong>
+                            </div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: ${clf.f1_score || 0}%"></div></div>
+
+                            <div class="signal-item">
+                                <span>AUC-ROC</span>
+                                <strong>${clf.auc_roc || '--'}%</strong>
+                            </div>
+                            <div class="metric-bar"><div class="metric-fill" style="width: ${clf.auc_roc || 0}%"></div></div>
+
+                            <div class="signal-item">
+                                <span>Cohen's Kappa</span>
+                                <strong>${clf.cohens_kappa || '--'}</strong>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('dataset-cards').innerHTML = cardsHtml;
+
+            // Render signal analysis
+            const signalHtml = Object.entries(datasets).map(([name, ds]) => {
+                const sig = ds.signal_analysis || {};
+                const alpha = sig.alpha_suppression || {};
+                const tbr = sig.theta_beta_ratio || {};
+                const faa = sig.frontal_asymmetry || {};
+
+                return `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="color: var(--primary-light); margin-bottom: 10px;">${name}</h4>
+                        <div class="grid grid-3">
+                            <div class="stat-box">
+                                <div class="stat-value" style="font-size: 1.5rem;">${alpha.suppression_percent || '--'}%</div>
+                                <div class="stat-label">Alpha Suppression</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value" style="font-size: 1.5rem;">${tbr.delta_percent || '--'}%</div>
+                                <div class="stat-label">TBR Change</div>
+                            </div>
+                            <div class="stat-box">
+                                <div class="stat-value" style="font-size: 1.5rem;">${faa.delta_faa || '--'}</div>
+                                <div class="stat-label">FAA Delta</div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('signal-analysis').innerHTML = signalHtml;
+
+            // Render feature importance
+            const features = data.feature_importance || [];
+            const featureHtml = features.slice(0, 10).map(f => `
+                <tr>
+                    <td>${f.rank}</td>
+                    <td>${f.feature}</td>
+                    <td>${(f.importance * 100).toFixed(1)}%</td>
+                    <td>${f.p_value < 0.001 ? '<0.001' : f.p_value.toFixed(4)}</td>
+                </tr>
+            `).join('');
+
+            document.getElementById('feature-tbody').innerHTML = featureHtml || '<tr><td colspan="4">No data</td></tr>';
+
+            // Render charts
+            renderCharts(datasets, data.baselines_comparison || []);
+        }
+
+        function renderCharts(datasets, baselines) {
+            // Performance Chart
+            const dsNames = Object.keys(datasets);
+            const accuracies = dsNames.map(n => datasets[n].classification?.accuracy || 0);
+            const f1Scores = dsNames.map(n => datasets[n].classification?.f1_score || 0);
+            const aucScores = dsNames.map(n => datasets[n].classification?.auc_roc || 0);
+
+            new Chart(document.getElementById('performanceChart'), {
+                type: 'bar',
+                data: {
+                    labels: dsNames,
+                    datasets: [
+                        { label: 'Accuracy', data: accuracies, backgroundColor: '#4F46E5' },
+                        { label: 'F1 Score', data: f1Scores, backgroundColor: '#10B981' },
+                        { label: 'AUC-ROC', data: aucScores, backgroundColor: '#F59E0B' }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: '#F1F5F9' } } },
+                    scales: {
+                        y: { min: 85, max: 105, ticks: { color: '#94A3B8' }, grid: { color: '#334155' } },
+                        x: { ticks: { color: '#94A3B8' }, grid: { color: '#334155' } }
+                    }
+                }
+            });
+
+            // Baseline Chart
+            const blNames = baselines.map(b => b.method);
+            const blAccs = baselines.map(b => b.accuracy);
+            const colors = blNames.map((n, i) => i === blNames.length - 1 ? '#4F46E5' : '#64748B');
+
+            new Chart(document.getElementById('baselineChart'), {
+                type: 'bar',
+                data: {
+                    labels: blNames,
+                    datasets: [{
+                        label: 'Accuracy %',
+                        data: blAccs,
+                        backgroundColor: colors
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { min: 70, max: 100, ticks: { color: '#94A3B8' }, grid: { color: '#334155' } },
+                        y: { ticks: { color: '#94A3B8' }, grid: { color: '#334155' } }
+                    }
+                }
+            });
+        }
+
+        // Load data on page load
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>

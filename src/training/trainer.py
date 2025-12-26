@@ -302,17 +302,27 @@ DEPENDENCIES
     - scikit-learn >= 1.0.0 (for metrics)
 
 ================================================================================
-PAPER SPECIFICATIONS
+PAPER SPECIFICATIONS (Paper v2, IEEE Sensors Journal 2024)
 ================================================================================
 
-    As described in the paper:
+    Reference: "GenAI-RAG-EEG: A Novel Hybrid Deep Learning Architecture for
+    Explainable EEG-Based Stress Classification using Generative AI and
+    Retrieval-Augmented Generation," IEEE Sensors Journal, 2024.
+
+    Hyperparameters (Table XXII):
     • Optimizer: AdamW with weight decay (1e-2)
     • Learning rate: 1e-4
     • Batch size: 64
     • Epochs: 100 with early stopping (patience=10)
     • Gradient clipping: max_norm=1.0
     • LR scheduler: ReduceLROnPlateau (factor=0.5, patience=5)
-    • Cross-validation: 10-fold stratified
+    • Cross-validation: 10-fold stratified (LOSO for final evaluation)
+    • Dropout: 0.3
+
+    Performance Results (Table XXVIII):
+    • DEAP:   94.7% accuracy, 0.948 F1, 0.982 AUC
+    • SAM-40: 81.9% accuracy, 0.835 F1, 0.891 AUC
+    • WESAD:  100.0% accuracy, 1.000 F1, 1.000 AUC
 
 ================================================================================
 """
@@ -350,21 +360,25 @@ except ImportError:
 
 @dataclass
 class TrainingConfig:
-    """Training configuration."""
-    # Optimization
-    learning_rate: float = 1e-4
-    weight_decay: float = 1e-2
-    batch_size: int = 64
-    n_epochs: int = 100
+    """
+    Training configuration (Paper v2, Table XXII).
 
-    # Early stopping
-    patience: int = 10
-    min_delta: float = 1e-4
+    Default values match paper hyperparameters.
+    """
+    # Optimization (Paper v2 optimal values)
+    learning_rate: float = 1e-4      # Paper: 1e-4
+    weight_decay: float = 1e-2       # Paper: 1e-2
+    batch_size: int = 64             # Paper: 64
+    n_epochs: int = 100              # Paper: 100
 
-    # Scheduler
+    # Early stopping (Paper v2)
+    patience: int = 10               # Paper: 10
+    min_delta: float = 1e-4          # Paper: 1e-4
+
+    # Scheduler (Paper v2: ReduceLROnPlateau)
     scheduler_type: str = "plateau"  # "plateau" or "cosine"
-    scheduler_factor: float = 0.5
-    scheduler_patience: int = 5
+    scheduler_factor: float = 0.5    # Paper: 0.5
+    scheduler_patience: int = 5      # Paper: 5
 
     # Checkpointing
     save_best: bool = True

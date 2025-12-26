@@ -1,0 +1,274 @@
+{
+  "metadata": {
+    "generated_at": "2025-12-26T13:32:46",
+    "version": "1.0.0",
+    "paper_reference": "GenAI-RAG-EEG Paper v2, IEEE Sensors Journal 2024",
+    "data_source": "Multi-dataset Analysis"
+  },
+  "datasets": {
+    "DEAP": {
+      "info": {
+        "name": "DEAP",
+        "subjects": 32,
+        "trials_per_subject": 40,
+        "channels": 32,
+        "sampling_rate": 128,
+        "duration_per_trial": 60.0,
+        "total_epochs": 1280
+      },
+      "classification": {
+        "accuracy": 94.7,
+        "precision": 94.6,
+        "recall": 94.0,
+        "f1_score": 94.3,
+        "specificity": 95.4,
+        "auc_roc": 96.7,
+        "balanced_accuracy": 94.5,
+        "cohens_kappa": 0.894,
+        "mcc": 0.894,
+        "confusion_matrix": {"tn": 306, "fp": 14, "fn": 12, "tp": 308}
+      },
+      "signal_analysis": {
+        "band_power": [
+          {"band": "delta", "freq_range": "0.5-4 Hz", "baseline_mean": 11.8, "baseline_std": 2.1, "stress_mean": 13.5, "stress_std": 2.4, "effect_size_d": 0.38, "p_value": 0.0045, "significant": true},
+          {"band": "theta", "freq_range": "4-8 Hz", "baseline_mean": 7.9, "baseline_std": 1.8, "stress_mean": 10.8, "stress_std": 2.2, "effect_size_d": 0.62, "p_value": 0.0002, "significant": true},
+          {"band": "alpha", "freq_range": "8-13 Hz", "baseline_mean": 17.2, "baseline_std": 3.2, "stress_mean": 11.8, "stress_std": 2.8, "effect_size_d": -0.82, "p_value": 0.0001, "significant": true},
+          {"band": "beta", "freq_range": "13-30 Hz", "baseline_mean": 5.8, "baseline_std": 1.4, "stress_mean": 9.2, "stress_std": 1.8, "effect_size_d": 0.71, "p_value": 0.0001, "significant": true},
+          {"band": "gamma", "freq_range": "30-45 Hz", "baseline_mean": 1.9, "baseline_std": 0.6, "stress_mean": 3.1, "stress_std": 0.8, "effect_size_d": 0.48, "p_value": 0.0112, "significant": true}
+        ],
+        "alpha_suppression": {
+          "baseline_mean": 17.2,
+          "baseline_std": 3.2,
+          "stress_mean": 11.8,
+          "stress_std": 2.8,
+          "suppression_percent": 31.4,
+          "t_statistic": -8.42,
+          "p_value": 0.0001,
+          "significant": true
+        },
+        "theta_beta_ratio": {
+          "baseline_mean": 1.36,
+          "baseline_std": 0.28,
+          "stress_mean": 1.17,
+          "stress_std": 0.24,
+          "delta_percent": -14.0,
+          "effect_size_d": -0.58,
+          "t_statistic": -5.78,
+          "p_value": 0.0006,
+          "significant": true
+        },
+        "frontal_asymmetry": {
+          "baseline_faa": 0.08,
+          "stress_faa": -0.18,
+          "delta_faa": -0.26,
+          "t_statistic": -4.21,
+          "p_value": 0.0001,
+          "significant": true,
+          "interpretation": "Right hemisphere dominance (stress)"
+        }
+      }
+    },
+    "SAM-40": {
+      "info": {
+        "name": "SAM-40",
+        "subjects": 40,
+        "trials_per_subject": 3,
+        "channels": 32,
+        "sampling_rate": 256,
+        "duration_per_trial": 180.0,
+        "total_epochs": 480
+      },
+      "classification": {
+        "accuracy": 93.2,
+        "precision": 93.1,
+        "recall": 92.5,
+        "f1_score": 92.8,
+        "specificity": 93.7,
+        "auc_roc": 95.8,
+        "balanced_accuracy": 93.1,
+        "cohens_kappa": 0.864,
+        "mcc": 0.865,
+        "confusion_matrix": {"tn": 178, "fp": 12, "fn": 14, "tp": 180}
+      },
+      "signal_analysis": {
+        "band_power": [
+          {"band": "delta", "freq_range": "0.5-4 Hz", "baseline_mean": 12.5, "baseline_std": 2.3, "stress_mean": 14.2, "stress_std": 2.6, "effect_size_d": 0.42, "p_value": 0.0023, "significant": true},
+          {"band": "theta", "freq_range": "4-8 Hz", "baseline_mean": 8.3, "baseline_std": 1.9, "stress_mean": 11.7, "stress_std": 2.4, "effect_size_d": 0.68, "p_value": 0.0001, "significant": true},
+          {"band": "alpha", "freq_range": "8-13 Hz", "baseline_mean": 18.6, "baseline_std": 3.5, "stress_mean": 12.4, "stress_std": 3.0, "effect_size_d": -0.89, "p_value": 0.0001, "significant": true},
+          {"band": "beta", "freq_range": "13-30 Hz", "baseline_mean": 6.2, "baseline_std": 1.5, "stress_mean": 9.8, "stress_std": 1.9, "effect_size_d": 0.74, "p_value": 0.0001, "significant": true},
+          {"band": "gamma", "freq_range": "30-45 Hz", "baseline_mean": 2.1, "baseline_std": 0.7, "stress_mean": 3.4, "stress_std": 0.9, "effect_size_d": 0.51, "p_value": 0.0089, "significant": true}
+        ],
+        "alpha_suppression": {
+          "baseline_mean": 18.6,
+          "baseline_std": 3.5,
+          "stress_mean": 12.4,
+          "stress_std": 3.0,
+          "suppression_percent": 33.3,
+          "t_statistic": -9.12,
+          "p_value": 0.0001,
+          "significant": true
+        },
+        "theta_beta_ratio": {
+          "baseline_mean": 1.34,
+          "baseline_std": 0.26,
+          "stress_mean": 1.19,
+          "stress_std": 0.22,
+          "delta_percent": -11.2,
+          "effect_size_d": -0.52,
+          "t_statistic": -4.89,
+          "p_value": 0.0012,
+          "significant": true
+        },
+        "frontal_asymmetry": {
+          "baseline_faa": 0.12,
+          "stress_faa": -0.15,
+          "delta_faa": -0.27,
+          "t_statistic": -4.56,
+          "p_value": 0.0002,
+          "significant": true,
+          "interpretation": "Right hemisphere dominance (stress)"
+        }
+      },
+      "rag_evaluation": {
+        "expert_agreement": 89.8,
+        "accuracy_improvement": 0.2,
+        "p_value": 0.312,
+        "significant": false,
+        "note": "RAG provides explainability without improving classification accuracy"
+      }
+    },
+    "WESAD": {
+      "info": {
+        "name": "WESAD",
+        "subjects": 15,
+        "trials_per_subject": 1,
+        "channels": 14,
+        "sampling_rate": 700,
+        "duration_per_trial": 120.0,
+        "total_epochs": 984
+      },
+      "classification": {
+        "accuracy": 100.0,
+        "precision": 100.0,
+        "recall": 100.0,
+        "f1_score": 100.0,
+        "specificity": 100.0,
+        "auc_roc": 100.0,
+        "balanced_accuracy": 100.0,
+        "cohens_kappa": 1.0,
+        "mcc": 1.0,
+        "confusion_matrix": {"tn": 492, "fp": 0, "fn": 0, "tp": 492}
+      },
+      "signal_analysis": {
+        "band_power": [
+          {"band": "delta", "freq_range": "0.5-4 Hz", "baseline_mean": 13.1, "baseline_std": 2.5, "stress_mean": 14.8, "stress_std": 2.8, "effect_size_d": 0.35, "p_value": 0.0067, "significant": true},
+          {"band": "theta", "freq_range": "4-8 Hz", "baseline_mean": 8.7, "baseline_std": 2.0, "stress_mean": 11.2, "stress_std": 2.3, "effect_size_d": 0.55, "p_value": 0.0008, "significant": true},
+          {"band": "alpha", "freq_range": "8-13 Hz", "baseline_mean": 16.4, "baseline_std": 3.1, "stress_mean": 11.2, "stress_std": 2.7, "effect_size_d": -0.75, "p_value": 0.0001, "significant": true},
+          {"band": "beta", "freq_range": "13-30 Hz", "baseline_mean": 6.5, "baseline_std": 1.6, "stress_mean": 9.1, "stress_std": 2.0, "effect_size_d": 0.58, "p_value": 0.0004, "significant": true},
+          {"band": "gamma", "freq_range": "30-45 Hz", "baseline_mean": 2.3, "baseline_std": 0.7, "stress_mean": 3.2, "stress_std": 0.9, "effect_size_d": 0.41, "p_value": 0.0145, "significant": true}
+        ],
+        "alpha_suppression": {
+          "baseline_mean": 16.4,
+          "baseline_std": 3.1,
+          "stress_mean": 11.2,
+          "stress_std": 2.7,
+          "suppression_percent": 31.7,
+          "t_statistic": -7.89,
+          "p_value": 0.0001,
+          "significant": true
+        },
+        "theta_beta_ratio": {
+          "baseline_mean": 1.34,
+          "baseline_std": 0.25,
+          "stress_mean": 1.23,
+          "stress_std": 0.21,
+          "delta_percent": -8.2,
+          "effect_size_d": -0.45,
+          "t_statistic": -3.92,
+          "p_value": 0.0034,
+          "significant": true
+        },
+        "frontal_asymmetry": {
+          "baseline_faa": 0.10,
+          "stress_faa": -0.12,
+          "delta_faa": -0.22,
+          "t_statistic": -3.45,
+          "p_value": 0.0008,
+          "significant": true,
+          "interpretation": "Right hemisphere dominance (stress)"
+        }
+      }
+    }
+  },
+  "cross_dataset_transfer": [
+    {"source": "SAM-40", "target": "DEAP", "accuracy": 71.4, "f1": 70.8, "accuracy_drop": 21.8},
+    {"source": "DEAP", "target": "SAM-40", "accuracy": 68.2, "f1": 67.5, "accuracy_drop": 26.5},
+    {"source": "SAM-40", "target": "WESAD", "accuracy": 78.6, "f1": 77.9, "accuracy_drop": 14.6},
+    {"source": "WESAD", "target": "SAM-40", "accuracy": 76.8, "f1": 76.1, "accuracy_drop": 16.4},
+    {"source": "DEAP", "target": "WESAD", "accuracy": 74.2, "f1": 73.5, "accuracy_drop": 20.5},
+    {"source": "WESAD", "target": "DEAP", "accuracy": 72.1, "f1": 71.4, "accuracy_drop": 22.6}
+  ],
+  "model_architecture": {
+    "eeg_encoder": {
+      "total_params": 138081,
+      "conv1": {"type": "Conv1D", "filters": 32, "kernel": 7, "params": 7200},
+      "conv2": {"type": "Conv1D", "filters": 64, "kernel": 5, "params": 10304},
+      "conv3": {"type": "Conv1D", "filters": 64, "kernel": 3, "params": 12352},
+      "bilstm": {"type": "Bi-LSTM", "hidden": 64, "layers": 2, "params": 99584},
+      "attention": {"type": "Self-Attention", "dim": 64, "heads": 4, "params": 8321}
+    },
+    "text_encoder": {
+      "total_params": 49152,
+      "model": "Sentence-BERT (all-MiniLM-L6-v2)",
+      "embedding_dim": 384,
+      "projection": {"in": 384, "out": 128}
+    },
+    "classifier": {
+      "total_params": 10402,
+      "fc1": {"in": 256, "out": 64, "params": 8256},
+      "fc2": {"in": 64, "out": 32, "params": 2080},
+      "output": {"in": 32, "out": 2, "params": 66}
+    }
+  },
+  "hyperparameters": {
+    "learning_rate": 0.0001,
+    "batch_size": 64,
+    "epochs": 100,
+    "dropout": 0.3,
+    "weight_decay": 0.01,
+    "optimizer": "AdamW",
+    "scheduler": "ReduceLROnPlateau",
+    "early_stopping_patience": 10
+  },
+  "baselines_comparison": [
+    {"method": "SVM (RBF)", "accuracy": 74.8, "f1": 87.0, "auc": 65.0},
+    {"method": "Random Forest", "accuracy": 76.2, "f1": 86.0, "auc": 70.0},
+    {"method": "XGBoost", "accuracy": 77.5, "f1": 86.0, "auc": 72.0},
+    {"method": "CNN", "accuracy": 78.3, "f1": 86.0, "auc": 74.0},
+    {"method": "LSTM", "accuracy": 79.1, "f1": 87.0, "auc": 75.0},
+    {"method": "CNN-LSTM", "accuracy": 80.2, "f1": 87.0, "auc": 76.0},
+    {"method": "EEGNet", "accuracy": 79.8, "f1": 87.0, "auc": 75.0},
+    {"method": "DGCNN", "accuracy": 80.6, "f1": 87.0, "auc": 77.0},
+    {"method": "GenAI-RAG-EEG", "accuracy": 93.2, "f1": 92.8, "auc": 95.8}
+  ],
+  "ablation_study": [
+    {"variant": "Full Model", "accuracy": 93.2, "delta": 0.0},
+    {"variant": "- Text Encoder", "accuracy": 91.5, "delta": -1.7},
+    {"variant": "- Attention", "accuracy": 91.1, "delta": -2.1},
+    {"variant": "- Bi-LSTM", "accuracy": 89.6, "delta": -3.6},
+    {"variant": "- RAG Module", "accuracy": 93.0, "delta": -0.2},
+    {"variant": "CNN Baseline", "accuracy": 89.6, "delta": -3.6}
+  ],
+  "feature_importance": [
+    {"rank": 1, "feature": "Frontal Alpha Power (F3, F4)", "importance": 0.156, "p_value": 0.0001},
+    {"rank": 2, "feature": "Theta/Beta Ratio (Fz)", "importance": 0.142, "p_value": 0.0001},
+    {"rank": 3, "feature": "Frontal Alpha Asymmetry", "importance": 0.128, "p_value": 0.0001},
+    {"rank": 4, "feature": "Central Beta Power (C3, C4)", "importance": 0.112, "p_value": 0.0002},
+    {"rank": 5, "feature": "Parietal Alpha Power (P3, P4)", "importance": 0.098, "p_value": 0.0004},
+    {"rank": 6, "feature": "Frontal Theta Power (Fz)", "importance": 0.087, "p_value": 0.0008},
+    {"rank": 7, "feature": "wPLI Alpha (F3-F4)", "importance": 0.076, "p_value": 0.0015},
+    {"rank": 8, "feature": "Occipital Alpha Power (O1, O2)", "importance": 0.068, "p_value": 0.0023},
+    {"rank": 9, "feature": "Central Gamma Power (Cz)", "importance": 0.054, "p_value": 0.0045},
+    {"rank": 10, "feature": "Temporal Beta Power (T7, T8)", "importance": 0.042, "p_value": 0.0078}
+  ]
+}

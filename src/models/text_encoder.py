@@ -79,15 +79,18 @@ Key Features:
     - Mean pooling: Robust sentence representation
     - Efficient: 49K trainable params vs 22.7M frozen
 
-Parameters:
+Parameters (Paper v2, Table XIX):
     - Frozen (Sentence-BERT): 22,713,216
-    - Trainable (Projection): 49,280
+    - Trainable (Projection): 49,280 (matches paper Table XIX)
     - Total: 22,762,496
 
 References:
-    [1] Reimers & Gurevych, "Sentence-BERT: Sentence Embeddings using
+    [1] "GenAI-RAG-EEG: A Novel Hybrid Deep Learning Architecture for
+        Explainable EEG-Based Stress Classification using Generative AI
+        and Retrieval-Augmented Generation," IEEE Sensors Journal, 2024.
+    [2] Reimers & Gurevych, "Sentence-BERT: Sentence Embeddings using
         Siamese BERT-Networks," EMNLP 2019.
-    [2] Devlin et al., "BERT: Pre-training of Deep Bidirectional
+    [3] Devlin et al., "BERT: Pre-training of Deep Bidirectional
         Transformers for Language Understanding," NAACL 2019.
 
 License: MIT License

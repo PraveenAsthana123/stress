@@ -269,7 +269,7 @@ rag:
   # -------------------------------------------------------------------
   vector_db:
     type: "faiss"                  # Options: faiss, chromadb, pinecone
-    index_type: "Flat"             # Options: Flat, IVF, HNSW
+    index_type: "IVF"              # Options: Flat, IVF, HNSW (Paper v2: IVF-PQ)
     path: "data/vectordb"          # Vector store path
 
   # -------------------------------------------------------------------
@@ -278,7 +278,7 @@ rag:
   chunking:
     method: "semantic"             # Options: fixed, semantic, hierarchical
     chunk_size: 512                # Tokens per chunk
-    chunk_overlap: 50              # Overlap between chunks
+    chunk_overlap: 64              # Overlap between chunks (Paper v2: 64 tokens)
 
     # Semantic Chunking
     semantic:

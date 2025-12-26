@@ -79,17 +79,25 @@ Key Components:
     - SelfAttention: Learnable temporal importance weighting
     - EEGEncoder: Complete encoder combining all components
 
-Parameters:
-    - Total Trainable: ~138,081
-    - Conv Layers: ~30,000
-    - Bi-LSTM: ~99,584
-    - Attention: ~8,321
+Parameters (Actual Implementation):
+    - Total Trainable: 105,376
+    - Conv Layers: 30,176
+    - BatchNorm: 320
+    - Bi-LSTM: 66,560
+    - Self-Attention: 8,320
+
+    Note: Paper v2 Table XIX reports 138,081 total params with LSTM=99,584.
+    The discrepancy stems from different LSTM input sizes in paper tables.
+    Implementation follows architecture: Conv(32,64,64) → Bi-LSTM(64) → Attn(64).
 
 References:
-    [1] Koelstra et al., "DEAP: A Database for Emotion Analysis using
+    [1] "GenAI-RAG-EEG: A Novel Hybrid Deep Learning Architecture for
+        Explainable EEG-Based Stress Classification using Generative AI
+        and Retrieval-Augmented Generation," IEEE Sensors Journal, 2024.
+    [2] Koelstra et al., "DEAP: A Database for Emotion Analysis using
         Physiological Signals," IEEE Trans. Affective Computing, 2012.
-    [2] Hochreiter & Schmidhuber, "Long Short-Term Memory," Neural Computation, 1997.
-    [3] Bahdanau et al., "Neural Machine Translation by Jointly Learning to
+    [3] Hochreiter & Schmidhuber, "Long Short-Term Memory," Neural Computation, 1997.
+    [4] Bahdanau et al., "Neural Machine Translation by Jointly Learning to
         Align and Translate," ICLR, 2015.
 
 License: MIT License
@@ -458,18 +466,18 @@ class EEGEncoder(nn.Module):
        - Visualizable as temporal heatmap
        - Used by RAG explainer for explanations
 
-    Parameter Count:
-    ----------------
+    Parameter Count (Actual Implementation):
+    ----------------------------------------
     Component           | Parameters
     --------------------|------------
-    Conv Block 1        | 2,336
-    Conv Block 2        | 10,368
-    Conv Block 3        | 12,416
+    Conv Layers         | 30,176
     BatchNorm layers    | 320
-    Bi-LSTM            | 99,584
-    Self-Attention     | 8,321
+    Bi-LSTM            | 66,560
+    Self-Attention     | 8,320
     --------------------|------------
-    TOTAL              | ~138,081
+    TOTAL              | 105,376
+
+    Note: Paper v2 Table XIX reports 138,081 total.
 
     Usage Example:
     --------------
