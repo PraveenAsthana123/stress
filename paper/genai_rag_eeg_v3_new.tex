@@ -47,11 +47,11 @@ Sarita Singh Gond\IEEEauthorrefmark{3}}
 %% ABSTRACT
 %% ============================================================================
 \begin{abstract}
-Stress chips away at both productivity and wellbeing, yet pinning it down objectively---in real time, no less---remains surprisingly difficult. We present a multi-pronged solution combining brain signal analysis with modern AI techniques. At the core sits a neural network architecture that stacks spatial convolutions atop bidirectional recurrent units, capped with self-attention layers. This encoder partners with a separate text encoder processing contextual metadata, and the whole system links to a retrieval-augmented explanation generator that justifies its predictions by fetching relevant scientific literature.
+Productivity and wellbeing are gradually eroded by stress, yet objective real-time quantification remains remarkably elusive. A multi-faceted solution integrating cerebral signal analysis with contemporary AI methodologies is presented herein. A neural network architecture wherein spatial convolutions are stacked upon bidirectional recurrent units, crowned with self-attention layers, forms the nucleus. This encoder is partnered with a distinct text encoder for contextual metadata processing, and the entire apparatus is linked to a retrieval-augmented explanation generator through which predictions are justified via pertinent scientific literature retrieval.
 
-We tested this framework across three publicly available EEG datasets, each representing a fundamentally different flavor of stress: music-video-induced emotional arousal (DEAP, 32 people), challenging cognitive tasks (SAM-40, 40 people), and controlled psychosocial stress via the Trier protocol (WESAD, 15 people). Classification hit 94.7\%, 93.2\%, and 100\% respectively. Across all three paradigms, we observed consistent neurophysiological patterns: alpha power dropping 31--33\% ($p < 0.0001$), theta-to-beta ratios shifting $-8\%$ to $-14\%$, and frontal asymmetry tilting rightward. Training on one dataset and testing on another revealed 14--27\% accuracy drops---concrete evidence that different stress types genuinely differ at the neural level.
+This framework was evaluated across three publicly accessible EEG repositories, each embodying a fundamentally distinct stress variant: music-video-elicited emotional arousal (DEAP, 32 participants), demanding cognitive exercises (SAM-40, 40 participants), and regulated psychosocial stress via the Trier protocol (WESAD, 15 participants). Classification accuracies of 94.7\%, 93.2\%, and 100\% were attained respectively. Across all three paradigms, consistent neurophysiological signatures were detected: alpha power diminution of 31--33\% ($p < 0.0001$), theta-to-beta ratio alterations of $-8\%$ to $-14\%$, and rightward frontal asymmetry displacement. When training was conducted on one dataset with evaluation on another, 14--27\% accuracy degradation was observed---substantive evidence that disparate stress categories genuinely diverge at the neural stratum.
 
-The explanation module earned 89.8\% agreement from domain experts who rated its outputs for scientific accuracy and clinical relevance. Validation throughout employed leave-one-subject-out partitioning, bootstrap confidence intervals, and formal effect size calculations. We share our preprocessing pipelines and evaluation code to enable reproducibility.
+Expert agreement of 89.8\% was garnered by the explanation module when outputs were assessed for scientific precision and clinical pertinence. Leave-one-subject-out partitioning, bootstrap confidence intervals, and formal effect magnitude calculations were employed throughout validation. Preprocessing pipelines and evaluation code are furnished to facilitate reproducibility.
 \end{abstract}
 
 \begin{IEEEkeywords}
@@ -65,27 +65,27 @@ Electroencephalography, cognitive stress, deep learning, explainable artificial 
 
 \IEEEPARstart{W}{hen} environmental demands surpass an individual's perceived coping resources, a multifaceted neurobiological response emerges that we term cognitive stress~\cite{lazarus1984stress}. Contemporary estimates suggest stress-related conditions extract approximately \$300 billion from global economies through healthcare expenditures and diminished workforce productivity~\cite{who2023mental}. Prolonged exposure precipitates cascading pathophysiology spanning cardiovascular irregularities, metabolic perturbations, immunological compromise, and psychiatric sequelae including anxiety spectrum and depressive disorders. International health authorities now recognize occupational stress as a preeminent workplace hazard impacting upwards of 300 million workers worldwide. Conventional assessment paradigms depend upon retrospective self-enumeration, introducing systematic distortions from memory degradation, impression management tendencies, experimental reactivity, and temporal insensitivity~\cite{cohen1983global}. These methodological constraints underscore the imperative for developing objective, temporally continuous, and minimally invasive neural monitoring platforms amenable to ecological deployment.
 
-Brain electrical recordings through scalp electrodes---electroencephalography or EEG---present compelling advantages for tracking mental strain objectively~\cite{niedermeyer2005electroencephalography}. What makes EEG particularly attractive? Its sub-second temporal precision captures neural fluctuations as they unfold, something heart rate monitors, sweat gland sensors, or blood cortisol tests simply cannot match. While those peripheral measures tell us about body-wide responses occurring seconds or minutes after the brain initiates them, EEG taps directly into the cortical generators of cognition and emotion themselves.
+Compelling advantages for objective mental strain monitoring are presented by scalp electrode-based electrical recordings---electroencephalography or EEG~\cite{niedermeyer2005electroencephalography}. What renders EEG particularly appealing? Sub-second temporal precision through which neural fluctuations are captured as they transpire---a capability unmatched by cardiac monitors, galvanic skin sensors, or blood cortisol assays. While body-wide responses occurring seconds or minutes subsequent to cerebral initiation are reflected by those peripheral indices, cortical generators of cognition and emotion themselves are directly accessed through EEG.
 
-How does stress actually appear in brain rhythms? The picture involves several frequency bands, each telling a different part of the story. When alpha waves (those 8--13 Hz oscillations) drop in power, researchers interpret this as the cortex shifting from an idle, internally-focused state toward heightened external vigilance---a pattern consistently linked to stress across numerous studies~\cite{klimesch1999alpha}. Meanwhile, faster beta rhythms (13--30 Hz) tend to increase, signaling ramped-up cognitive engagement and mental effort~\cite{engel2001dynamic}. Frontal theta waves (4--8 Hz) fluctuate in ways connected to executive demands, error detection, and working memory taxation~\cite{cavanagh2014frontal}. Perhaps most intriguingly, the two brain hemispheres often show asymmetric alpha patterns during stress---Davidson's influential model links stronger right-frontal activity to avoidance motivation and negative emotional states~\cite{davidson2004well}. Decades of psychophysiological research have validated these spectral markers individually; together, they constitute a rich signal landscape ripe for computational pattern recognition.
+How is stress manifested within cerebral rhythms? Multiple frequency bands are implicated, each conveying a distinct facet of the narrative. When alpha oscillations (those 8--13 Hz waveforms) exhibit power diminution, this phenomenon is interpreted by investigators as cortical transitioning from an idle, internally-oriented state toward amplified external vigilance---a configuration consistently associated with stress across myriad investigations~\cite{klimesch1999alpha}. Concurrently, swifter beta rhythms (13--30 Hz) tend toward elevation, signifying intensified cognitive engagement and mental exertion~\cite{engel2001dynamic}. Frontal theta oscillations (4--8 Hz) demonstrate fluctuations interconnected with executive demands, error detection, and working memory burden~\cite{cavanagh2014frontal}. Perhaps most fascinatingly, asymmetric alpha configurations between the two cerebral hemispheres are frequently exhibited during stress---Davidson's seminal model associates amplified right-frontal activity with avoidance motivation and adverse emotional states~\cite{davidson2004well}. These spectral markers have been individually validated through decades of psychophysiological inquiry; collectively, a rich signal terrain amenable to computational pattern recognition is constituted.
 
-The machine learning landscape for brain signal analysis has shifted dramatically in recent years. Neural network architectures now learn discriminative patterns directly from raw or minimally processed recordings, frequently outperforming laboriously engineered feature sets that dominated earlier approaches~\cite{craik2019deep}. Convolution-based networks excel at detecting spatial arrangements across electrode montages and extracting hierarchical temporal motifs through layered filtering operations~\cite{schirrmeister2017deep}. For capturing how brain states evolve across longer timescales---seconds rather than milliseconds---recurrent designs like LSTM prove invaluable, maintaining information about earlier signal segments that inform interpretation of later ones~\cite{bashivan2016learning}. Attention modules represent the latest refinement, letting models dynamically emphasize the most classification-relevant portions of input sequences while downweighting uninformative stretches~\cite{zhang2019making}. Yet a stubborn problem persists: these sophisticated systems achieve remarkable accuracy but offer clinicians little insight into why they reach particular conclusions~\cite{tonekaboni2019clinicians}. Doctors, nurses, and medical regulators understandably hesitate to trust opaque algorithms with patient welfare. They need to peek inside the black box.
+The machine learning terrain for cerebral signal analysis has been dramatically transformed in recent years. Discriminative patterns are now learned directly from raw or minimally processed recordings by neural network architectures, with laboriously engineered feature sets that dominated antecedent approaches frequently being surpassed~\cite{craik2019deep}. Spatial arrangements across electrode montages are adeptly detected by convolution-based networks, with hierarchical temporal motifs extracted through layered filtering operations~\cite{schirrmeister2017deep}. For capturing how cerebral states evolve across extended timescales---seconds rather than milliseconds---recurrent configurations like LSTM prove indispensable, with information about earlier signal segments that inform interpretation of subsequent ones being maintained~\cite{bashivan2016learning}. The most recent refinement is represented by attention modules, through which the most classification-pertinent portions of input sequences are dynamically emphasized while uninformative stretches are downweighted~\cite{zhang2019making}. Yet a persistent predicament remains: remarkable accuracy is achieved by these sophisticated systems but scant insight into why particular conclusions are reached is offered to clinicians~\cite{tonekaboni2019clinicians}. Hesitation to entrust opaque algorithms with patient welfare is understandably exhibited by physicians, nurses, and medical regulators. The black box interior must be glimpsed.
 
-Enter large language models and retrieval-augmented generation---technologies that may finally crack the explainability puzzle for biomedical AI~\cite{lewis2020retrieval}. The core insight behind RAG involves anchoring model outputs to retrieved passages from scientific literature or clinical knowledge repositories. Rather than generating explanations from scratch (risking hallucination), the system retrieves relevant evidence first, then synthesizes coherent natural-language rationales grounded in that retrieved content~\cite{jin2024health}. For stress classification specifically, this means explanations can reference established neurophysiological mechanisms, cite supporting research, and present reasoning in terms clinicians recognize and can evaluate.
+Large language models and retrieval-augmented generation enter the picture---technologies through which the explainability conundrum for biomedical AI may finally be resolved~\cite{lewis2020retrieval}. The fundamental insight underlying RAG involves model outputs being anchored to retrieved passages from scientific literature or clinical knowledge repositories. Rather than explanations being generated de novo (with hallucination risks entailed), pertinent evidence is retrieved first, whereupon coherent natural-language rationales grounded in that retrieved content are synthesized~\cite{jin2024health}. For stress classification specifically, this signifies that established neurophysiological mechanisms can be referenced by explanations, supporting research can be cited, and reasoning can be presented in terminology that clinicians recognize and are equipped to evaluate.
 
 \subsection{Related Work and Research Gaps}
 
-Table~\ref{tab:related} surveys notable recent contributions to automated brain signal classification for emotional and stress states. Song and colleagues~\cite{song2020eeg} treated electrode relationships as evolving graph structures, applying dynamical graph convolutions to achieve 90.4\% on the SEED benchmark---an elegant approach capturing topological dependencies but offering users no window into prediction rationales. Tao's group~\cite{tao2020attention} wove attention mechanisms into their recurrent architecture, hitting 88.7\% on DEAP data; while attention maps hint at which temporal segments mattered most, they fall short of the textual, evidence-backed explanations practitioners actually need. Li's team~\cite{li2023domain} tackled the notoriously difficult cross-subject generalization problem through domain adaptation strategies, yet explanation capabilities remained absent from their pipeline. The influential EEGNet work by Lawhern and co-authors~\cite{lawhern2018eegnet} demonstrated that surprisingly compact convolutional designs could rival larger models while fitting within embedded system constraints---but again, interpretability received no attention.
+Notable recent contributions to automated cerebral signal classification for emotional and stress states are surveyed in Table~\ref{tab:related}. Electrode relationships were treated as evolving graph structures by Song and colleagues~\cite{song2020eeg}, with dynamical graph convolutions applied to attain 90.4\% on the SEED benchmark---an elegant approach through which topological dependencies are captured but no window into prediction rationales is afforded to users. Attention mechanisms were interwoven into their recurrent architecture by Tao's group~\cite{tao2020attention}, with 88.7\% achieved on DEAP data; while hints about which temporal segments mattered most are provided by attention maps, they fall short of the textual, evidence-backed explanations actually required by practitioners. The notoriously arduous cross-subject generalization problem was tackled through domain adaptation strategies by Li's team~\cite{li2023domain}, yet explanation capabilities remained absent from their pipeline. Through the influential EEGNet work by Lawhern and co-authors~\cite{lawhern2018eegnet}, it was demonstrated that surprisingly compact convolutional designs could rival larger models while fitting within embedded system constraints---but again, no attention was devoted to interpretability.
 
-Looking across this landscape, several stubborn gaps impede moving these algorithms from research prototypes into clinical tools:
+When this landscape is surveyed, several obstinate gaps that impede transitioning these algorithms from research prototypes into clinical instruments are revealed:
 
-\textbf{The Explanation Deficit}: Current systems offer predictions without justifications. Attention heatmaps provide some insight but hardly constitute the narrative, literature-grounded explanations a neurologist or psychiatrist would find convincing. Practitioners cannot verify what they cannot understand.
+\textbf{The Explanation Deficit}: Predictions without justifications are offered by current systems. Some insight is provided by attention heatmaps but the narrative, literature-grounded explanations that a neurologist or psychiatrist would find convincing are hardly constituted thereby. What cannot be understood cannot be verified by practitioners.
 
-\textbf{Methodological Fragmentation}: Every research group seemingly reinvents preprocessing choices, validation partitioning, and reporting conventions. Reproducing published results---let alone comparing methods fairly---becomes an exercise in frustration.
+\textbf{Methodological Fragmentation}: Preprocessing choices, validation partitioning, and reporting conventions are seemingly reinvented by every research group. Reproducing published results---let alone comparing methods equitably---becomes an exercise in frustration.
 
-\textbf{Lumping Disparate Stress Types}: Papers routinely blur boundaries between emotional arousal, mental workload, and acute physiological stress as if these represented interchangeable phenomena. Neurobiologically, they are not. Optimal detection strategies may well differ across these constructs.
+\textbf{Lumping Disparate Stress Types}: Boundaries between emotional arousal, mental workload, and acute physiological stress are routinely blurred by papers as if interchangeable phenomena were represented. Neurobiologically, they are not. Optimal detection strategies may well diverge across these constructs.
 
-\textbf{Statistical Sloppiness}: Too many publications parade single-number accuracies without uncertainty quantification---no confidence bounds, no effect magnitudes, no correction for testing multiple hypotheses. Such reporting undermines confidence in generalizability claims.
+\textbf{Statistical Sloppiness}: Single-number accuracies without uncertainty quantification are paraded by too many publications---no confidence bounds, no effect magnitudes, no correction for testing multiple hypotheses. Confidence in generalizability claims is undermined by such reporting.
 
 \begin{table}[t]
 \centering
@@ -154,21 +154,21 @@ WESAD & 15 & 14 & 700 & 4,215 & 45:55 & Physio. \\
 
 \subsection{Signal Preprocessing Pipeline}
 
-Before feeding brain signals into any classifier, we clean them up through several standard steps---nothing revolutionary here, but essential nonetheless.
+Before cerebral signals are fed into any classifier, they are sanitized through several standard procedures---nothing revolutionary here, but essential nonetheless.
 
-First comes frequency filtering. We keep signals between 0.5 and 45 Hz using a fourth-order Butterworth design. Why these cutoffs? Anything below half a Hertz reflects electrode drift rather than brain activity; anything above 45 Hz introduces muscle contamination without adding relevant neural information. The familiar delta, theta, alpha, beta, and low gamma bands all fall comfortably within this range.
+Frequency filtering is applied first. Signals between 0.5 and 45 Hz are retained using a fourth-order Butterworth configuration. Why these cutoffs? Electrode drift rather than cerebral activity is reflected by anything below half a Hertz; muscle contamination without relevant neural information is introduced by anything above 45 Hz. The familiar delta, theta, alpha, beta, and low gamma bands all reside comfortably within this range.
 
-Power line hum plagues virtually every EEG recording made near electrical outlets. A narrow notch at 50 Hz (or 60 Hz for North American labs) excises this nuisance while leaving neighboring frequencies intact.
+Power line hum afflicts virtually every EEG recording captured near electrical outlets. This nuisance is excised by a narrow notch at 50 Hz (or 60 Hz for North American laboratories) while neighboring frequencies are left intact.
 
-Electrodes sometimes go haywire---an eye blink creates a massive deflection, a muscle twitch saturates the amplifier, a loose sensor pops. Rather than deploying sophisticated blind source separation (computational overkill for our purposes), we simply toss any segment where voltages exceed $\pm$100 microvolts. Crude but effective.
+Electrodes sometimes malfunction---a massive deflection is created by an eye blink, the amplifier is saturated by a muscle twitch, a loose sensor disconnects. Rather than sophisticated blind source separation being deployed (computational excess for our purposes), any segment wherein voltages exceed $\pm$100 microvolts is simply discarded. Rudimentary but efficacious.
 
-We then slice continuous recordings into four-second chunks, overlapping consecutive windows by half their length. Four seconds gives us 0.25 Hz frequency resolution---plenty for distinguishing alpha from theta---while still tracking how stress states evolve across minutes.
+Continuous recordings are then partitioned into four-second segments, with consecutive windows overlapped by half their duration. Four seconds yields 0.25 Hz frequency resolution---ample for distinguishing alpha from theta---while tracking how stress states evolve across minutes is still permitted.
 
-Finally, each electrode channel gets standardized to zero mean and unit variance. This per-channel normalization keeps genuine topographical differences (some regions naturally show more power) while putting all inputs on equal footing for the neural network.
+Finally, each electrode channel is standardized to zero mean and unit variance. Genuine topographical distinctions (some regions naturally exhibit elevated power) are preserved by this per-channel normalization while all inputs are placed on equal footing for the neural network.
 
 \subsection{Proposed Architecture}
 
-Our system---which we call GenAI-RAG-EEG---chains together four major components, diagrammed in Figure~\ref{fig:architecture}. Brain signals enter the EEG Encoder, which extracts patterns through convolutions and recurrent layers. Meanwhile, a Context Encoder digests textual metadata about the recording session. These two streams merge in a Fusion Classifier that renders stress/non-stress verdicts. But we don't stop at predictions: a RAG Explainer module fetches relevant scientific literature and weaves it into plain-English justifications for why the model decided what it decided.
+Four major components are chained together in our system---designated GenAI-RAG-EEG---as diagrammed in Figure~\ref{fig:architecture}. Cerebral signals are received by the EEG Encoder, through which patterns are extracted via convolutions and recurrent layers. Concurrently, textual metadata regarding the recording session is processed by a Context Encoder. These dual streams are merged in a Fusion Classifier wherein stress/non-stress verdicts are rendered. But predictions are not where the process terminates: pertinent scientific literature is fetched by a RAG Explainer module and woven into plain-English justifications for why particular decisions were reached by the model.
 
 \begin{figure}[t]
 \centering
@@ -205,46 +205,46 @@ Our system---which we call GenAI-RAG-EEG---chains together four major components
 \end{figure}
 
 \subsubsection{EEG Encoder}
-The brain signal encoder stacks three processing stages, each designed to tease out patterns at different timescales.
+Three processing stages are stacked by the cerebral signal encoder, each configured to extract patterns at disparate timescales.
 
-\textbf{Convolution Layers}: Think of these as learnable template matchers sliding across the EEG waveform. Our first block applies 32 filters spanning 7 time points---at 256 Hz sampling, that's roughly 27 milliseconds, enough to catch one full alpha wave. Batch normalization steadies training, ReLU adds nonlinearity, and max-pooling compresses the representation:
+\textbf{Convolution Layers}: These can be conceptualized as learnable template matchers sliding across the EEG waveform. 32 filters spanning 7 time points are applied by our initial block---at 256 Hz sampling, approximately 27 milliseconds is represented, sufficient to capture one complete alpha oscillation. Training is stabilized by batch normalization, nonlinearity is introduced by ReLU, and the representation is compressed by max-pooling:
 \begin{equation}
 \mathbf{h}^{(l)} = \text{MaxPool}(\text{ReLU}(\text{BN}(\text{Conv1D}(\mathbf{h}^{(l-1)}))))
 \end{equation}
-Subsequent blocks (64 filters with kernels of 5, then 3) progressively zoom in on finer temporal details while building more abstract feature combinations.
+Finer temporal particulars are progressively examined by subsequent blocks (64 filters with kernels of 5, then 3) while more abstract feature amalgamations are constructed.
 
-\textbf{Bidirectional Recurrence}: Convolutions capture local patterns but miss the bigger picture of how brain states unfold over seconds. Enter the bidirectional LSTM: one copy reads the sequence forward, another reads backward, and we concatenate their outputs:
+\textbf{Bidirectional Recurrence}: Local patterns are captured by convolutions but the broader picture of how cerebral states unfold over seconds is missed. The bidirectional LSTM addresses this: the sequence is read forward by one copy, backward by another, and their outputs are concatenated:
 \begin{equation}
 \mathbf{h}_t = [\overrightarrow{\mathbf{h}_t}; \overleftarrow{\mathbf{h}_t}]
 \end{equation}
-With 64 hidden units running each direction, we get 128-dimensional state vectors encoding both what came before and what comes after each moment.
+With 64 hidden units operating in each direction, 128-dimensional state vectors encoding both what preceded and what follows each moment are obtained.
 
-\textbf{Attention Pooling}: Not all time points matter equally for classification. Following the now-standard attention recipe~\cite{vaswani2017attention}, we compute relevance scores:
+\textbf{Attention Pooling}: Equal importance for classification is not possessed by all time points. Following the now-standard attention recipe~\cite{vaswani2017attention}, relevance scores are computed:
 \begin{equation}
 \alpha_t = \frac{\exp(e_t)}{\sum_{k} \exp(e_k)}, \quad \mathbf{c} = \sum_{t} \alpha_t \mathbf{h}_t
 \end{equation}
-The final context vector $\mathbf{c}$ (128 dimensions) summarizes the entire segment, weighted toward the most discriminative moments.
+The complete segment is summarized by the final context vector $\mathbf{c}$ (128 dimensions), weighted toward the most discriminative moments.
 
 \subsubsection{Context Encoder}
-Beyond raw brain signals, we incorporate metadata---what task the person performed, environmental conditions, basic demographics if available. Sentence-BERT~\cite{reimers2019sentence} (specifically the compact all-MiniLM-L6-v2 variant) digests these text snippets into 384-dimensional vectors. We keep SBERT's pretrained weights frozen and simply learn a projection layer that shrinks these embeddings down to 128 dimensions:
+Beyond raw cerebral signals, metadata is incorporated---what task was performed by the participant, environmental conditions, basic demographics if available. These text snippets are digested into 384-dimensional vectors by Sentence-BERT~\cite{reimers2019sentence} (specifically the compact all-MiniLM-L6-v2 variant). SBERT's pretrained weights are kept frozen and merely a projection layer through which these embeddings are contracted to 128 dimensions is learned:
 \begin{equation}
 \mathbf{e}_{\text{ctx}} = \mathbf{W}_{\text{proj}} \cdot \text{SBERT}(\text{context}) + \mathbf{b}_{\text{proj}}
 \end{equation}
 
 \subsubsection{Fusion and Classification}
-Now we glue everything together. The 128-dimensional EEG embedding meets the 128-dimensional context embedding, producing a 256-dimensional joint representation. This feeds through three fully-connected layers (shrinking from 256 to 64 to 32 to 2), punctuated by ReLU activations and 30\% dropout to combat overfitting. A softmax at the end yields stress probabilities:
+Everything is now amalgamated. The 128-dimensional EEG embedding is conjoined with the 128-dimensional context embedding, yielding a 256-dimensional joint representation. This is propagated through three fully-connected layers (contracting from 256 to 64 to 32 to 2), punctuated by ReLU activations and 30\% dropout to counteract overfitting. Stress probabilities are produced by a softmax at the terminus:
 \begin{equation}
 \hat{y} = \text{softmax}(\text{MLP}([\mathbf{c}_{\text{eeg}}; \mathbf{e}_{\text{ctx}}]))
 \end{equation}
 
 \subsubsection{RAG Explainer Module}
-Making predictions is one thing; justifying them is another. Our explanation engine operates in three steps.
+Predictions being rendered is one matter; their justification is another. Three steps are executed by our explanation engine.
 
-\textbf{Building the Knowledge Library}: We assembled a corpus of stress neuroscience literature---papers on EEG biomarkers, clinical stress assessment, neural correlates of arousal. These documents get chopped into overlapping 512-token chunks (64-token overlap ensures no important passage falls through the cracks).
+\textbf{Building the Knowledge Library}: A corpus of stress neuroscience literature was assembled---papers on EEG biomarkers, clinical stress assessment, neural correlates of arousal. These documents are partitioned into overlapping 512-token segments (64-token overlap ensures no important passage is missed).
 
-\textbf{Retrieval}: FAISS~\cite{johnson2019billion} performs efficient approximate nearest neighbor search, retrieving top-5 passages most relevant to the current prediction based on embedding similarity.
+\textbf{Retrieval}: Efficient approximate nearest neighbor search is performed by FAISS~\cite{johnson2019billion}, with top-5 passages most germane to the current prediction retrieved based on embedding similarity.
 
-\textbf{Generation}: Retrieved passages augment a structured prompt incorporating prediction confidence, attention patterns, and detected biomarkers. The LLM generates explanations grounded in retrieved scientific evidence.
+\textbf{Generation}: A structured prompt incorporating prediction confidence, attention patterns, and detected biomarkers is augmented by retrieved passages. Explanations grounded in retrieved scientific evidence are generated by the LLM.
 
 \subsection{Training Protocol}
 
@@ -295,34 +295,34 @@ Gamma & +0.48 & +0.51 & +0.41 & $<$.05 \\
 
 \subsection{Alpha Suppression Index}
 
-When someone gets stressed, their alpha rhythms typically drop. We quantify this by computing how much 8--13 Hz power falls during stress compared to baseline:
+When stress is experienced, alpha rhythms typically diminish. This is quantified by computing how much 8--13 Hz power declines during stress relative to baseline:
 \begin{equation}
 \text{Suppression} = \frac{\bar{P}_{\alpha,\text{baseline}} - \bar{P}_{\alpha,\text{stress}}}{\bar{P}_{\alpha,\text{baseline}}} \times 100\%
 \end{equation}
 
-Here's what surprised us: the numbers came out almost identical across three very different stress situations. DEAP showed 31.4\% suppression (confidence interval 28.7--34.1\%), SAM-40 hit 33.3\% (30.8--35.8\%), and WESAD landed at 31.7\% (27.9--35.5\%). Whether people watched unsettling videos, struggled with mental math, or gave speeches in front of stern judges, their alpha rhythms dropped by roughly a third. Every comparison cleared $p < 0.0001$ after Bonferroni correction. This convergence across such disparate paradigms makes a strong case for alpha suppression as something close to a universal stress signature~\cite{klimesch1999alpha}.
+What proved surprising: nearly identical figures emerged across three markedly disparate stress circumstances. 31.4\% suppression was exhibited by DEAP (confidence interval 28.7--34.1\%), 33.3\% was attained by SAM-40 (30.8--35.8\%), and 31.7\% was registered by WESAD (27.9--35.5\%). Whether unsettling videos were observed, mental arithmetic was struggled with, or speeches were delivered before stern evaluators, alpha rhythms were diminished by approximately one-third. Every comparison surpassed $p < 0.0001$ following Bonferroni correction. This convergence across such disparate paradigms furnishes compelling evidence for alpha suppression as approximating a universal stress signature~\cite{klimesch1999alpha}.
 
 \subsection{Theta/Beta Ratio Modulation}
 
-Another useful metric divides theta power (the slow 4--8 Hz stuff linked to drowsiness and daydreaming) by beta power (faster 13--30 Hz activity signaling alertness)~\cite{putman2014eeg}:
+Another serviceable metric is obtained when theta power (the sluggish 4--8 Hz activity associated with drowsiness and daydreaming) is divided by beta power (swifter 13--30 Hz activity indicating alertness)~\cite{putman2014eeg}:
 \begin{equation}
 \text{TBR} = \frac{P_\theta}{P_\beta}
 \end{equation}
 
-Under stress, this ratio shrinks---beta ramps up while theta holds steady or dips. DEAP subjects showed 14\% drops (Cohen's $d$ = $-$0.58), SAM-40 about 11\% ($d$ = $-$0.52), WESAD around 8\% ($d$ = $-$0.45). Translation: stressed brains become more externally vigilant, less internally focused. Interestingly, researchers have linked low TBR to anxiety and attention deficits in other contexts, hinting that this marker might prove clinically useful beyond stress detection.
+Under stress, this ratio contracts---beta is ramped up while theta remains steady or dips. 14\% reductions were demonstrated by DEAP subjects (Cohen's $d$ = $-$0.58), approximately 11\% by SAM-40 ($d$ = $-$0.52), and around 8\% by WESAD ($d$ = $-$0.45). The interpretation: stressed brains become more externally vigilant, less internally oriented. Intriguingly, low TBR has been linked to anxiety and attention deficits in other contexts by investigators, intimating that this marker might prove clinically serviceable beyond stress detection.
 
 \subsection{Frontal Alpha Asymmetry}
 
-Davidson's approach-withdrawal model~\cite{davidson2004well} suggests the left and right frontal lobes play different emotional roles. We measured asymmetry by comparing log-transformed alpha between hemispheres:
+Different emotional roles for the left and right frontal lobes are suggested by Davidson's approach-withdrawal model~\cite{davidson2004well}. Asymmetry was quantified through comparison of log-transformed alpha between hemispheres:
 \begin{equation}
 \text{FAA} = \ln(P_{\alpha,\text{F4}}) - \ln(P_{\alpha,\text{F3}})
 \end{equation}
 
-Since alpha inversely tracks activation, more left-hemisphere alpha (positive FAA) means relatively greater right-hemisphere engagement---supposedly linked to avoidance and negative emotions. Stress pushed FAA in exactly this direction: shifts of $-$0.26 (DEAP), $-$0.27 (SAM-40), and $-$0.22 (WESAD), all statistically rock-solid ($p<$0.001). The stressed brain, it seems, literally tilts toward withdrawal mode.
+Since activation is inversely tracked by alpha, elevated left-hemisphere alpha (positive FAA) signifies relatively greater right-hemisphere engagement---purportedly associated with avoidance and adverse emotions. FAA was shifted by stress in precisely this direction: displacements of $-$0.26 (DEAP), $-$0.27 (SAM-40), and $-$0.22 (WESAD), all statistically robust ($p<$0.001). The stressed brain, it appears, is literally tilted toward withdrawal mode.
 
 \subsection{Topographical Distribution Analysis}
 
-Where on the scalp do these stress signatures appear most strongly? Frontal electrodes (Fp1, Fp2, F3, F4, Fz) win the alpha-suppression contest hands down, which makes neurobiological sense---the prefrontal cortex handles executive control, emotion regulation, and stress appraisal. Central sites (C3, C4, Cz) light up with beta enhancement, perhaps reflecting motor preparation or heightened sensorimotor vigilance. Parietal regions show moderate effects; occipital areas barely budge. The overall picture suggests stress primarily reshapes activity in brain regions governing cognition and emotion, leaving basic sensory processing relatively untouched.
+Where on the scalp are these stress signatures manifested most prominently? The alpha-suppression contest is decidedly won by frontal electrodes (Fp1, Fp2, F3, F4, Fz), which is neurobiologically sensible---executive control, emotion regulation, and stress appraisal are handled by the prefrontal cortex. Beta enhancement is exhibited by central sites (C3, C4, Cz), perhaps reflecting motor preparation or heightened sensorimotor vigilance. Moderate effects are displayed by parietal regions; occipital areas barely shift. Activity in brain regions governing cognition and emotion is primarily reshaped by stress, with basic sensory processing left relatively unaffected, as suggested by the overall picture.
 
 %% ============================================================================
 %% SECTION IV: EXPERIMENTAL RESULTS
@@ -331,7 +331,7 @@ Where on the scalp do these stress signatures appear most strongly? Frontal elec
 
 \subsection{Classification Performance}
 
-So how well does the system actually work? Table~\ref{tab:classification} lays out the numbers from leave-one-subject-out testing. On DEAP (the music video dataset), we hit 94.7\% accuracy. SAM-40 (cognitive tasks) came in at 93.2\%. And WESAD (the Trier stress protocol)? A perfect 100\%---every single sample classified correctly. Cohen's kappa scores ranging from 0.864 to 1.0 confirm these aren't flukes; the agreement goes way beyond what you'd expect by chance. AUC-ROC values above 95\% across the board mean the model discriminates well regardless of where you set the decision threshold.
+How efficaciously does the system actually perform? The figures from leave-one-subject-out testing are presented in Table~\ref{tab:classification}. On DEAP (the music video dataset), 94.7\% accuracy was achieved. 93.2\% was attained by SAM-40 (cognitive tasks). And WESAD (the Trier stress protocol)? A flawless 100\%---every single sample was correctly classified. These are confirmed as non-fortuitous by Cohen's kappa scores ranging from 0.864 to 1.0; agreement substantially exceeds what would be expected by chance. Strong discrimination regardless of decision threshold placement is indicated by AUC-ROC values exceeding 95\% across the board.
 
 \begin{table}[t]
 \centering
@@ -351,7 +351,7 @@ WESAD & 100.0 & 100.0 & 100.0 & 100.0 & 100.0 & 1.000 \\
 \end{tabular}
 \end{table}
 
-Figure~\ref{fig:roc_curves} plots the familiar ROC curves. WESAD hugs the top-left corner perfectly (AUC = 100\%), while DEAP and SAM-40 trace nearly-ideal arcs with AUCs of 96.7\% and 95.8\% respectively. No matter how aggressively or conservatively you tune the classifier, it maintains strong performance.
+The familiar ROC curves are plotted in Figure~\ref{fig:roc_curves}. The top-left corner is perfectly hugged by WESAD (AUC = 100\%), while nearly-ideal arcs with AUCs of 96.7\% and 95.8\% respectively are traced by DEAP and SAM-40. Regardless of how aggressively or conservatively the classifier is tuned, robust performance is maintained.
 
 \begin{figure}[t]
 \centering
@@ -360,7 +360,7 @@ Figure~\ref{fig:roc_curves} plots the familiar ROC curves. WESAD hugs the top-le
 \label{fig:roc_curves}
 \end{figure}
 
-The confusion matrices (Figure~\ref{fig:confusion_matrices}) tell the same story in grid form: most samples land on the diagonal, meaning correct classifications. The handful of mistakes tend to cluster around borderline cases---people whose stress responses didn't quite fit the typical pattern.
+The identical narrative in grid form is conveyed by the confusion matrices (Figure~\ref{fig:confusion_matrices}): most samples reside on the diagonal, signifying correct classifications. The handful of errors tend to cluster around borderline cases---individuals whose stress responses did not quite conform to the typical configuration.
 
 \begin{figure}[t]
 \centering
@@ -369,11 +369,11 @@ The confusion matrices (Figure~\ref{fig:confusion_matrices}) tell the same story
 \label{fig:confusion_matrices}
 \end{figure}
 
-Why the flawless WESAD results? The Trier protocol hits hard---standing before a disapproving panel while doing mental arithmetic triggers unambiguous physiological arousal. The neural signatures become unmistakable. SAM-40's cognitive stressors produce more subtle, variable responses; different people cope differently with math problems or tracing tasks. Hence the slightly lower (still excellent) numbers there.
+Why the flawless WESAD outcomes? The Trier protocol strikes forcefully---standing before a disapproving panel while executing mental arithmetic triggers unequivocal physiological arousal. The neural signatures become unmistakable. More subtle, variable responses are produced by SAM-40's cognitive stressors; disparate coping mechanisms are employed by different individuals for arithmetic problems or tracing exercises. Hence the marginally lower (still excellent) figures there.
 
 \subsection{LOSO Per-Subject Analysis}
 
-When we break down accuracy by individual subject (Figure~\ref{fig:loso_results}), an interesting pattern emerges. SAM-40 shows the widest spread (standard deviation 4.2\%)---some folks' cognitive stress just doesn't manifest the same way as others'. DEAP falls in the middle (SD = 2.8\%). WESAD? Every single subject hit 100\%. The Trier protocol apparently stresses everyone in roughly the same neurobiological way.
+When accuracy is disaggregated by individual subject (Figure~\ref{fig:loso_results}), an intriguing pattern materializes. The broadest dispersion is exhibited by SAM-40 (standard deviation 4.2\%)---cognitive stress in some individuals simply does not manifest identically to others'. DEAP occupies the intermediate position (SD = 2.8\%). WESAD? 100\% was attained by every single subject. Everyone is apparently stressed in roughly the same neurobiological manner by the Trier protocol.
 
 \begin{figure}[t]
 \centering
@@ -404,7 +404,7 @@ When we break down accuracy by individual subject (Figure~\ref{fig:loso_results}
 \label{fig:loso_results}
 \end{figure}
 
-Training curves (Figure~\ref{fig:training_curves}) show the model learning without going off the rails. Validation loss tracks training loss pretty closely---no huge gap opening up that would signal overfitting. Training usually wrapped up between epochs 25 and 35 when early stopping kicked in.
+The model learning without derailing is demonstrated by training curves (Figure~\ref{fig:training_curves}). Validation loss tracks training loss fairly closely---no substantial gap emerges that would signal overfitting. Training was typically concluded between epochs 25 and 35 when early stopping was triggered.
 
 \begin{figure}[t]
 \centering
@@ -413,7 +413,7 @@ Training curves (Figure~\ref{fig:training_curves}) show the model learning witho
 \label{fig:training_curves}
 \end{figure}
 
-Figure~\ref{fig:precision_recall} presents precision-recall curves providing complementary evaluation to ROC analysis.
+Precision-recall curves furnishing complementary evaluation to ROC analysis are presented in Figure~\ref{fig:precision_recall}.
 
 \begin{figure}[t]
 \centering
@@ -424,7 +424,7 @@ Figure~\ref{fig:precision_recall} presents precision-recall curves providing com
 
 \subsection{Baseline Comparison}
 
-So how does our approach stack up against the competition? Table~\ref{tab:baselines} puts it head-to-head with both traditional machine learning (SVM, Random Forest, XGBoost) and the latest deep learning methods (CNN, LSTM, EEGNet, DGCNN) on SAM-40. The gap turns out to be substantial---we beat the best baseline (DGCNN at 80.6\%) by over 12 percentage points. That's not a marginal improvement; it's a genuine leap forward.
+How does our methodology measure against the competition? A head-to-head comparison with both traditional machine learning (SVM, Random Forest, XGBoost) and the latest deep learning methods (CNN, LSTM, EEGNet, DGCNN) on SAM-40 is provided in Table~\ref{tab:baselines}. The gap proves substantial---the best baseline (DGCNN at 80.6\%) is surpassed by over 12 percentage points. That is not a marginal enhancement; it constitutes a genuine advancement.
 
 \begin{table}[t]
 \centering
@@ -449,11 +449,11 @@ DGCNN~\cite{song2020eeg} & 80.6 & 79.3 & 77.0 & 78.9 & 82.3 \\
 \end{tabular}
 \end{table}
 
-Why do the traditional approaches top out around 75--77\%? They're stuck with handcrafted features that simply can't capture all the messy, nonlinear dynamics hiding in EEG data. Deep learning methods push things to 78--80\%, which is respectable---but they're missing our hierarchical approach. Our architecture learns features at multiple scales, tracks patterns flowing both forward and backward in time, and focuses attention on what actually matters for classification.
+Why do the traditional approaches plateau around 75--77\%? They are constrained by handcrafted features that simply cannot capture all the intricate, nonlinear dynamics concealed within EEG data. 78--80\% is achieved by deep learning methods, which is respectable---but our hierarchical approach is absent. Features at multiple scales are learned by our architecture, patterns flowing both forward and backward through time are tracked, and attention is focused on what genuinely matters for classification.
 
 \subsection{Ablation Study}
 
-Which pieces of our architecture actually pull their weight? We ran ablations on SAM-40 to find out, stripping components one at a time (Table~\ref{tab:ablation}). The Bi-LSTM turns out to be the heavy lifter---take it away and accuracy drops 3.6\% ($p<$0.001). Self-attention chips in another 2.1\% ($p<$0.01) by zeroing in on the time windows that matter most. The context encoder? Worth 1.7\% ($p<$0.05) by weaving in task-related metadata.
+Which components of our architecture genuinely contribute? Ablations were conducted on SAM-40 to ascertain this, with components stripped away sequentially (Table~\ref{tab:ablation}). The Bi-LSTM emerges as the principal contributor---when removed, accuracy diminishes by 3.6\% ($p<$0.001). An additional 2.1\% ($p<$0.01) is contributed by self-attention through its focus on the temporal windows of greatest consequence. The context encoder? 1.7\% is contributed ($p<$0.05) through incorporation of task-related metadata.
 
 \begin{table}[t]
 \centering
@@ -474,11 +474,11 @@ CNN Only & 89.6 & $-$3.6 & $<$0.001 \\
 \end{tabular}
 \end{table}
 
-Here's something worth highlighting: the RAG module barely budges the numbers ($-$0.2\%, $p$=0.312---nowhere near significant). That's actually the point. Explanations come after the prediction is made, not during. We can add all the explainability bells and whistles without touching classification performance.
+Something warranting emphasis: the figures are barely perturbed by the RAG module ($-$0.2\%, $p$=0.312---nowhere approaching significance). That is precisely the intention. Explanations are generated subsequent to prediction, not during. All explainability embellishments can be incorporated without classification performance being affected.
 
 \subsection{Comprehensive Hyperparameter Sensitivity Analysis}
 
-How finicky is this model? We poked and prodded at every major knob---learning rate, batch size, dropout, hidden dimensions, attention heads, LSTM layers---to see what breaks and what holds up (Table~\ref{tab:sensitivity} and Figure~\ref{fig:hyperparameter_matrix}).
+How temperamental is this model? Every major parameter---learning rate, batch size, dropout, hidden dimensions, attention heads, LSTM layers---was systematically probed to ascertain what fractures and what remains robust (Table~\ref{tab:sensitivity} and Figure~\ref{fig:hyperparameter_matrix}).
 
 \begin{table}[t]
 \centering
@@ -527,11 +527,11 @@ How finicky is this model? We poked and prodded at every major knob---learning r
 \label{fig:hyperparameter_matrix}
 \end{figure}
 
-A few things jumped out. Learning rate is the touchy one---crank it up to $10^{-2}$ and training goes haywire, costing nearly 8\% accuracy. Hidden dimensions below 64 choke the model's capacity. More than 4 attention heads or 2 LSTM layers? Diminishing returns at best. Dropout sits happily at 0.3; push it to 0.5 and you're basically starving the model of information.
+Several observations emerged. Learning rate proves the sensitive one---when elevated to $10^{-2}$, training becomes erratic, forfeiting nearly 8\% accuracy. The model's capacity is constricted by hidden dimensions below 64. More than 4 attention heads or 2 LSTM layers? Diminishing returns at best are yielded. Dropout resides contentedly at 0.3; when pushed to 0.5, the model is essentially deprived of information.
 
 \subsection{Cross-Dataset Transfer Analysis}
 
-Can a model trained on one type of stress recognize another? We tested this by training on one dataset and evaluating on another---no fine-tuning, just cold transfer (Table~\ref{tab:transfer} and Figure~\ref{fig:transfer_heatmap}). The results are sobering: accuracy drops anywhere from 15\% to nearly 27\%. Different stress paradigms really do look different to the model.
+Can a model trained on one stress variant recognize another? This was examined through training on one dataset with evaluation on another---no fine-tuning, merely cold transfer (Table~\ref{tab:transfer} and Figure~\ref{fig:transfer_heatmap}). The outcomes prove sobering: accuracy diminishes anywhere from 15\% to nearly 27\%. Disparate stress paradigms genuinely appear distinct to the model.
 
 \begin{table}[t]
 \centering
@@ -559,11 +559,11 @@ WESAD & DEAP & 72.1 & 71.4 & $-$22.6 & $<$0.001 \\
 \label{fig:transfer_heatmap}
 \end{figure}
 
-The biggest transfer failures? DEAP to SAM-40 and vice versa, with drops exceeding 20\%. That makes sense when you think about it---emotional arousal (watching videos) and cognitive stress (doing math under pressure) probably fire up different brain networks, even if both feel "stressful." WESAD plays nicer with the others, possibly because its protocol (public speaking plus mental math) blends emotional and cognitive components.
+The most pronounced transfer failures? DEAP to SAM-40 and the reverse, with decrements exceeding 20\%. This is sensible upon reflection---emotional arousal (observing videos) and cognitive stress (performing arithmetic under pressure) presumably activate disparate cerebral networks, even if both are experienced as "stressful." WESAD exhibits better compatibility with the others, conceivably because emotional and cognitive components are blended by its protocol (public speaking plus mental arithmetic).
 
 \subsection{Feature Space Visualization}
 
-What do the learned features actually look like? We projected them down to two dimensions using t-SNE (Figure~\ref{fig:tsne}). Stress and baseline samples cluster into neat, separate groups---visual confirmation that the model isn't just memorizing; it's genuinely learning representations that track real neurophysiological differences.
+What appearance do the learned features actually assume? They were projected down to two dimensions utilizing t-SNE (Figure~\ref{fig:tsne}). Stress and baseline samples congregate into neat, separate clusters---visual corroboration that the model is not merely memorizing; representations that track genuine neurophysiological distinctions are being learned.
 
 \begin{figure}[t]
 \centering
@@ -574,7 +574,7 @@ What do the learned features actually look like? We projected them down to two d
 
 \subsection{Attention Pattern Analysis}
 
-Where does the model look when making predictions? We cracked open the attention weights to find out (Figure~\ref{fig:attention_heatmap}). Turns out it consistently zeroes in on time windows showing strong alpha suppression and beta enhancement---exactly the biomarkers that neuroscientists would expect. The model discovered these patterns on its own.
+Where does the model focus when rendering predictions? The attention weights were examined to ascertain this (Figure~\ref{fig:attention_heatmap}). It consistently concentrates on temporal windows exhibiting pronounced alpha suppression and beta enhancement---precisely the biomarkers neuroscientists would anticipate. These patterns were discovered by the model autonomously.
 
 \begin{figure}[t]
 \centering
@@ -585,7 +585,7 @@ Where does the model look when making predictions? We cracked open the attention
 
 \subsection{Architecture Component Importance}
 
-Figure~\ref{fig:component_importance} breaks down what each piece brings to the table. The Bi-LSTM dominates at +6.3\%---temporal dynamics clearly matter most for EEG. CNN feature extraction adds another +3.6\%, self-attention +2.6\%, and context encoding +0.9\%. Every layer justifies its existence.
+What each component contributes is delineated in Figure~\ref{fig:component_importance}. The Bi-LSTM predominates at +6.3\%---temporal dynamics evidently matter most for EEG. An additional +3.6\% is contributed by CNN feature extraction, +2.6\% by self-attention, and +0.9\% by context encoding. Every layer's existence is justified.
 
 \begin{figure}[t]
 \centering
@@ -620,7 +620,7 @@ Figure~\ref{fig:component_importance} breaks down what each piece brings to the 
 
 \subsection{Cumulative Component Removal Analysis}
 
-What happens if we strip components away one after another? Figure~\ref{fig:cumulative_ablation} shows the damage accumulating. Start at 93.2\%, remove RAG (93.0\%), then context encoder (91.3\%), self-attention (88.7\%), Bi-LSTM (82.4\%), and finally CNN (65.1\%)---down to near-chance levels. The degradation compounds non-linearly; these pieces work better together than their individual contributions would suggest.
+What transpires if components are stripped away sequentially? The accumulating damage is illustrated in Figure~\ref{fig:cumulative_ablation}. Commencing at 93.2\%, RAG is removed (93.0\%), then context encoder (91.3\%), self-attention (88.7\%), Bi-LSTM (82.4\%), and finally CNN (65.1\%)---descending to near-chance levels. Degradation compounds non-linearly; these constituents perform better collectively than their individual contributions would intimate.
 
 \begin{figure}[t]
 \centering
@@ -655,7 +655,7 @@ What happens if we strip components away one after another? Figure~\ref{fig:cumu
 
 \subsection{Component Interaction Matrix}
 
-Do the components play well together, or do they step on each other's toes? Table~\ref{tab:interaction_matrix} measures the synergy (or redundancy) between pairs. Positive numbers mean two components achieve more together than you'd expect from adding their solo contributions.
+Do the components collaborate harmoniously, or do they impede one another? Synergy (or redundancy) between pairs is quantified in Table~\ref{tab:interaction_matrix}. Positive values signify that two components achieve more collectively than would be anticipated from summing their individual contributions.
 
 \begin{table}[t]
 \centering
@@ -676,11 +676,11 @@ Do the components play well together, or do they step on each other's toes? Tabl
 \end{tabular}
 \end{table}
 
-The biggest synergy? CNN paired with Bi-LSTM at +2.4\%---spatial features and temporal dynamics genuinely complement each other. Attention-LSTM synergy (+1.8\%) confirms that selectively weighting time points helps the recurrent layers. The RAG module, by design, shows zero interaction with the classification pipeline.
+The most substantial synergy? CNN paired with Bi-LSTM at +2.4\%---spatial features and temporal dynamics genuinely complement one another. That selectively weighting temporal points assists the recurrent layers is confirmed by Attention-LSTM synergy (+1.8\%). Zero interaction with the classification pipeline is exhibited by the RAG module, by design.
 
 \subsection{Spectral Band Power Visualization}
 
-Figure~\ref{fig:band_power} shows how stress rewires the brain's frequency profile. Alpha power drops 31--33\% across all three datasets; beta power climbs 18--24\%. Same story, three different stress paradigms. That consistency is reassuring---it means the model is picking up on genuine biology, not dataset-specific quirks.
+How stress reconfigures the brain's frequency profile is depicted in Figure~\ref{fig:band_power}. Alpha power diminishes 31--33\% across all three datasets; beta power ascends 18--24\%. The identical narrative, three disparate stress paradigms. That consistency proves reassuring---genuine biology rather than dataset-specific peculiarities is being detected by the model.
 
 \begin{figure}[t]
 \centering
@@ -689,7 +689,7 @@ Figure~\ref{fig:band_power} shows how stress rewires the brain's frequency profi
 \label{fig:band_power}
 \end{figure}
 
-SHAP analysis (Figure~\ref{fig:shap_importance}) tells the same story from a different angle: frontal alpha and beta dominate the importance rankings. The model learned what decades of neuroscience already knew.
+The identical narrative from a different perspective is conveyed by SHAP analysis (Figure~\ref{fig:shap_importance}): frontal alpha and beta predominate in the importance rankings. What decades of neuroscience had already established was learned by the model.
 
 \begin{figure}[t]
 \centering
@@ -700,7 +700,7 @@ SHAP analysis (Figure~\ref{fig:shap_importance}) tells the same story from a dif
 
 \subsection{Statistical Validation Summary}
 
-Table~\ref{tab:statistical} pulls together the key statistics. Everything that matters survives Bonferroni correction for multiple comparisons. Effect sizes run large across the board (Cohen's $d > 0.8$ for alpha suppression), so we're not just chasing noise---these are real, robust differences.
+The key statistics are consolidated in Table~\ref{tab:statistical}. Everything of consequence survives Bonferroni correction for multiple comparisons. Effect sizes are uniformly large (Cohen's $d > 0.8$ for alpha suppression), so noise is not merely being pursued---genuine, robust differences are represented.
 
 \begin{table}[t]
 \centering
@@ -723,7 +723,7 @@ FAA $\Delta$ & $-$0.26*** & $-$0.27*** & $-$0.22*** & paired-$t$ \\
 
 \subsection{RAG Explanation Evaluation}
 
-Do the explanations actually make sense to clinicians? We had three domain experts---two neuroscientists and a psychiatrist---blindly evaluate 100 randomly sampled RAG outputs from SAM-40 (Table~\ref{tab:rag_eval}). They rated each explanation on scientific accuracy, clinical relevance, coherence, and evidence grounding.
+Do the explanations actually resonate with clinicians? 100 randomly sampled RAG outputs from SAM-40 were blindly evaluated by three domain experts---two neuroscientists and a psychiatrist (Table~\ref{tab:rag_eval}). Each explanation was rated on scientific accuracy, clinical relevance, coherence, and evidence grounding.
 
 \begin{table}[t]
 \centering
@@ -744,11 +744,11 @@ Evidence Grounding & 87.5 & 4.0$\pm$0.6 \\
 \end{tabular}
 \end{table}
 
-The experts largely agreed (Fleiss' $\kappa$=0.81, which is considered excellent). Overall agreement hit 89.8\% with average ratings of 4.2 out of 5. What did they like? Explanations cited the right biomarkers---alpha suppression, theta/beta changes, frontal asymmetry---and connected them to real neuroscience. What bothered them? Occasional overconfidence when the classification was actually borderline.
+Substantial agreement was exhibited by the experts (Fleiss' $\kappa$=0.81, which is deemed excellent). Overall agreement reached 89.8\% with average ratings of 4.2 out of 5. What was appreciated? The appropriate biomarkers were cited by explanations---alpha suppression, theta/beta alterations, frontal asymmetry---and connected to established neuroscience. What proved troublesome? Occasional overconfidence when the classification was actually borderline.
 
 \subsection{Computational Efficiency}
 
-Can this run in real time? Easily. Inference takes just 12 ms on a GPU (RTX 3080) or 85 ms on CPU (Intel i7-10700)---both fast enough for continuous monitoring. The whole model weighs in at under 200K parameters, roughly 50 times smaller than transformer-based alternatives. GPU memory peaks at 89 MB, so even embedded systems can handle it.
+Can this operate in real time? Readily. Merely 12 ms on a GPU (RTX 3080) or 85 ms on CPU (Intel i7-10700) is required for inference---both sufficiently rapid for continuous monitoring. The entire model comprises under 200K parameters, approximately 50 times more compact than transformer-based alternatives. GPU memory peaks at 89 MB, so even embedded systems can accommodate it.
 
 %% ============================================================================
 %% SECTION V: DISCUSSION
@@ -757,19 +757,19 @@ Can this run in real time? Easily. Inference takes just 12 ms on a GPU (RTX 3080
 
 \subsection{Interpretation of Results}
 
-What should we make of these numbers? Classification accuracy hovering between 94.7\% and 100\% across three very different stress paradigms suggests the architecture is doing something right. The CNN-LSTM-attention combination apparently extracts features robust enough to generalize across paradigmatic differences. Perfect WESAD classification isn't surprising---the TSST protocol pushes people hard and the physiological response is unambiguous. SAM-40's slightly lower numbers reflect the subtler nature of cognitive stress compared to acute social pressure.
+What should be inferred from these figures? Classification accuracy hovering between 94.7\% and 100\% across three markedly disparate stress paradigms suggests something is being accomplished correctly by the architecture. Features sufficiently robust to generalize across paradigmatic differences are apparently extracted by the CNN-LSTM-attention combination. Perfect WESAD classification is unsurprising---individuals are pushed forcefully by the TSST protocol and the physiological response is unequivocal. SAM-40's marginally lower figures reflect the subtler nature of cognitive stress compared to acute social pressure.
 
 \subsection{Neurophysiological Validation}
 
-The fact that alpha suppression (~32\%) appears consistently across all three paradigms lends credence to the idea that it's a universal stress marker---supporting what's called the cortical idling hypothesis~\cite{klimesch1999alpha}. The theta/beta ratio drops align with theories about shifting toward externally-focused vigilant states~\cite{putman2014eeg}. Frontal asymmetry tilting rightward matches established findings on stress-related hemispheric activation~\cite{davidson2004well}.
+That alpha suppression (~32\%) manifests consistently across all three paradigms lends credibility to the notion of a universal stress marker---supporting what is termed the cortical idling hypothesis~\cite{klimesch1999alpha}. Theories regarding shifting toward externally-focused vigilant states are aligned with by the theta/beta ratio diminutions~\cite{putman2014eeg}. Established findings on stress-related hemispheric activation are matched by rightward frontal asymmetry displacement~\cite{davidson2004well}.
 
 \subsection{Clinical Implications}
 
-Where could this actually be useful? Occupational health monitoring for air traffic controllers, surgeons, or others in high-stress roles comes to mind. Adaptive neurofeedback that responds to real-time stress detection is another possibility. Mental health clinicians might appreciate an objective biomarker to supplement patient self-reports. The explanations help bridge the gap between black-box predictions and clinical intuition---89.8\% expert agreement suggests the reasoning is sound enough to trust.
+Where could this actually prove beneficial? Occupational health monitoring for air traffic controllers, surgeons, or others occupying high-stress positions comes to mind. Adaptive neurofeedback responding to real-time stress detection represents another possibility. An objective biomarker supplementing patient self-reports might be appreciated by mental health clinicians. The chasm between black-box predictions and clinical intuition is bridged by the explanations---89.8\% expert agreement suggests the reasoning is sufficiently sound to warrant trust.
 
 \subsection{Limitations}
 
-We should be honest about what this work doesn't show. Everything happened in controlled lab settings---we can't promise the same performance when someone's commuting or working at a noisy office. Our subjects were mostly young and healthy, so generalizing to older adults or clinical populations remains unproven. Electrode setups varied across datasets, which is realistic but messy. And the RAG module needs API access to an LLM, which isn't always practical. Future work should tackle real-world validation, wearable EEG integration, and combining brain data with other physiological signals.
+Candor about what is not demonstrated by this work is warranted. Everything transpired in controlled laboratory environments---equivalent performance when commuting or laboring in a noisy office cannot be guaranteed. Our subjects were predominantly young and healthy, so generalization to older adults or clinical populations remains unsubstantiated. Electrode configurations varied across datasets, which is realistic but untidy. And API access to an LLM is necessitated by the RAG module, which is not always practical. Real-world validation, wearable EEG integration, and amalgamating cerebral data with other physiological signals should be tackled by future endeavors.
 
 
 %% ============================================================================
@@ -777,15 +777,15 @@ We should be honest about what this work doesn't show. Everything happened in co
 %% ============================================================================
 \section{Conclusion}
 
-We built GenAI-RAG-EEG to tackle a specific problem: detecting stress from brain signals in a way that's both accurate and explainable. The approach combines a CNN-LSTM-attention classifier with retrieval-augmented generation for explanations. Testing on three datasets---DEAP, SAM-40, and WESAD---yielded accuracies of 94.7\%, 93.2\%, and 100\% respectively, all with a model under 200K parameters.
+GenAI-RAG-EEG was constructed to tackle a specific problem: detecting stress from cerebral signals in a manner that is both accurate and explicable. A CNN-LSTM-attention classifier is combined with retrieval-augmented generation for explanations by the approach. Testing on three datasets---DEAP, SAM-40, and WESAD---yielded accuracies of 94.7\%, 93.2\%, and 100\% respectively, all with a model comprising under 200K parameters.
 
-The neurophysiological story holds together. Alpha suppression around 31--33\%, theta/beta ratio drops of 8--14\%, and rightward shifts in frontal asymmetry appeared across all three paradigms. Effect sizes were large ($d > 0.8$) and highly significant ($p < 0.001$). The model isn't learning dataset-specific quirks; it's tracking real biology.
+The neurophysiological narrative coheres. Alpha suppression of approximately 31--33\%, theta/beta ratio diminutions of 8--14\%, and rightward shifts in frontal asymmetry manifested across all three paradigms. Effect sizes were substantial ($d > 0.8$) and highly significant ($p < 0.001$). Dataset-specific peculiarities are not being learned by the model; genuine biology is being tracked.
 
-The RAG explanations landed well with experts---89.8\% agreement that they were scientifically accurate and clinically relevant. That matters because deep learning in healthcare often stalls at the "black box" objection. Ablations confirmed that every major component earns its keep: self-attention adds +2.6\%, the full CNN-LSTM hierarchy contributes +9.5\% over simpler alternatives.
+Expert approval was garnered by the RAG explanations---89.8\% agreement that they were scientifically precise and clinically pertinent. That matters because deep learning in healthcare frequently stalls at the "black box" objection. That every major component earns its position was confirmed by ablations: +2.6\% is added by self-attention, +9.5\% over simpler alternatives is contributed by the full CNN-LSTM hierarchy.
 
-Cross-dataset transfer remains a challenge. Accuracy drops 14--27\% when moving between paradigms without fine-tuning, underscoring that "stress" means different things in different contexts. Domain adaptation is an obvious next step.
+Cross-dataset transfer remains a challenge. Accuracy diminishes 14--27\% when transitioning between paradigms without fine-tuning, underscoring that "stress" signifies disparate things in disparate contexts. Domain adaptation represents an obvious subsequent step.
 
-For now, the framework provides a reproducible benchmark for explainable EEG-based stress detection. Applications range from occupational health monitoring to clinical assessment to adaptive interfaces that respond to user mental states in real time.
+For now, a reproducible benchmark for explainable EEG-based stress detection is furnished by the framework. Applications span from occupational health monitoring to clinical assessment to adaptive interfaces responding to user mental states in real time.
 
 %% ============================================================================
 %% REFERENCES - Exactly 30 citations
