@@ -3,449 +3,679 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GenAI-RAG-EEG | Analysis Dashboard</title>
+    <title>Comprehensive Analysis Dashboard - GenAI-RAG-EEG</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary: #4F46E5;
-            --primary-light: #818CF8;
-            --secondary: #10B981;
-            --accent: #F59E0B;
-            --danger: #EF4444;
-            --bg-primary: #0F172A;
-            --bg-secondary: #1E293B;
-            --bg-card: #1E293B;
-            --text-primary: #F1F5F9;
-            --text-secondary: #94A3B8;
-            --border: #334155;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg-primary);
-            color: var(--text-primary);
-            min-height: 100vh;
-            padding: 20px;
-        }
-
-        .container { max-width: 1400px; margin: 0 auto; }
-
-        .header {
-            background: linear-gradient(135deg, var(--primary) 0%, #7C3AED 100%);
-            padding: 30px;
-            border-radius: 16px;
-            margin-bottom: 30px;
-        }
-
-        .header h1 { font-size: 1.8rem; margin-bottom: 8px; }
-        .header .subtitle { color: rgba(255,255,255,0.8); }
-        .header .data-source {
-            margin-top: 15px;
-            padding: 8px 16px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 8px;
-            display: inline-block;
-            font-size: 0.85rem;
-        }
-
-        .nav { display: flex; gap: 10px; margin-bottom: 20px; }
-        .nav a {
-            padding: 12px 24px;
-            background: var(--bg-secondary);
-            color: var(--text-secondary);
-            text-decoration: none;
-            border-radius: 8px;
-            transition: all 0.2s;
-        }
-        .nav a:hover, .nav a.active {
-            background: var(--primary);
-            color: white;
-        }
-
-        .grid { display: grid; gap: 20px; }
-        .grid-3 { grid-template-columns: repeat(3, 1fr); }
-        .grid-2 { grid-template-columns: repeat(2, 1fr); }
-
-        @media (max-width: 1000px) {
-            .grid-3, .grid-2 { grid-template-columns: 1fr; }
-        }
-
-        .card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            padding: 24px;
-            border: 1px solid var(--border);
-        }
-
-        .card-title {
-            font-size: 1.1rem;
-            font-weight: 600;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 1px solid var(--border);
-        }
-
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
-
-        .stat-box {
-            background: var(--bg-primary);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-        }
-
-        .stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary-light), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .stat-label {
-            color: var(--text-secondary);
-            font-size: 0.85rem;
-            margin-top: 5px;
-        }
-
-        .dataset-card {
-            border-left: 4px solid var(--primary);
-        }
-        .dataset-card.deap { border-color: #3B82F6; }
-        .dataset-card.sam40 { border-color: #10B981; }
-        .dataset-card.wesad { border-color: #F59E0B; }
-
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-
-        th, td {
-            padding: 12px;
-            text-align: left;
-            border-bottom: 1px solid var(--border);
-        }
-
-        th { color: var(--text-secondary); font-weight: 500; }
-
-        .badge {
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 600;
-        }
-        .badge-success { background: var(--secondary); color: white; }
-        .badge-warning { background: var(--accent); color: black; }
-        .badge-primary { background: var(--primary); color: white; }
-
-        .chart-container { height: 300px; }
-
-        .metric-bar {
-            height: 8px;
-            background: var(--bg-primary);
-            border-radius: 4px;
-            margin-top: 8px;
-            overflow: hidden;
-        }
-        .metric-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 4px;
-        }
-
-        .signal-analysis { margin-top: 20px; }
-        .signal-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--border);
-        }
-        .signal-item:last-child { border-bottom: none; }
-
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: var(--text-secondary);
-        }
-
-        #data-status {
-            padding: 10px 20px;
-            background: var(--secondary);
-            color: white;
-            border-radius: 8px;
-            display: inline-block;
-            margin-left: 20px;
-        }
+        .tab-active { border-bottom: 3px solid #3b82f6; color: #3b82f6; }
+        .metric-card { transition: transform 0.2s; }
+        .metric-card:hover { transform: translateY(-2px); }
+        .passed { background-color: #d1fae5; color: #065f46; }
+        .failed { background-color: #fee2e2; color: #991b1b; }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>GenAI-RAG-EEG Analysis Dashboard</h1>
-            <div class="subtitle">IEEE Sensors Journal 2024 - Real-Time Data Visualization</div>
-            <div class="data-source">
-                Data Source: <strong>results/hardcoded_analysis_data.json</strong>
-                <span id="data-status">Loading...</span>
+<body class="bg-gray-100 min-h-screen">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 shadow-lg">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center">
+                <div>
+                    <h1 class="text-2xl font-bold">Comprehensive Analysis Framework</h1>
+                    <p class="text-blue-100">GenAI-RAG-EEG v4.0 - Clinical Validation & Performance Analysis</p>
+                </div>
+                <a href="/" class="bg-white text-blue-600 px-4 py-2 rounded-lg hover:bg-blue-50">Back to Dashboard</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Navigation Tabs -->
+    <nav class="bg-white shadow-sm sticky top-0 z-10">
+        <div class="container mx-auto px-4">
+            <div class="flex space-x-4 overflow-x-auto">
+                <button onclick="showTab('clinical')" id="tab-clinical" class="tab-btn tab-active px-4 py-3 font-medium">Clinical Validation</button>
+                <button onclick="showTab('reliability')" id="tab-reliability" class="tab-btn px-4 py-3 font-medium text-gray-600 hover:text-blue-600">Reliability & Robustness</button>
+                <button onclick="showTab('model')" id="tab-model" class="tab-btn px-4 py-3 font-medium text-gray-600 hover:text-blue-600">Model Analysis</button>
+                <button onclick="showTab('loso')" id="tab-loso" class="tab-btn px-4 py-3 font-medium text-gray-600 hover:text-blue-600">LOSO Analysis</button>
+                <button onclick="showTab('features')" id="tab-features" class="tab-btn px-4 py-3 font-medium text-gray-600 hover:text-blue-600">Feature Engineering</button>
+                <button onclick="showTab('workload')" id="tab-workload" class="tab-btn px-4 py-3 font-medium text-gray-600 hover:text-blue-600">Cognitive Workload</button>
+                <button onclick="showTab('metrics')" id="tab-metrics" class="tab-btn px-4 py-3 font-medium text-gray-600 hover:text-blue-600">Metrics Matrix</button>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container mx-auto px-4 py-6">
+        <!-- Clinical Validation Tab -->
+        <div id="content-clinical" class="tab-content">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Diagnostic Validity -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-600">Diagnostic Validity Metrics</h3>
+                    <div id="diagnostic-metrics" class="space-y-3"></div>
+                </div>
+
+                <!-- Clinical Thresholds -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-green-600">Clinical Threshold Compliance</h3>
+                    <div id="clinical-thresholds" class="space-y-2"></div>
+                </div>
+
+                <!-- Agreement Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-600">Agreement Analysis</h3>
+                    <div id="agreement-metrics"></div>
+                </div>
+
+                <!-- Risk Assessment -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-red-600">Risk Assessment</h3>
+                    <div id="risk-metrics"></div>
+                </div>
+
+                <!-- Clinical Composite Score -->
+                <div class="bg-white rounded-lg shadow-md p-6 col-span-full">
+                    <h3 class="text-lg font-semibold mb-4">Clinical Composite Score</h3>
+                    <div id="composite-score" class="text-center"></div>
+                </div>
             </div>
         </div>
 
-        <div class="nav">
-            <a href="/" class="active">Dashboard</a>
-            <a href="/chatbot">RAG Chatbot</a>
-        </div>
+        <!-- Reliability Tab -->
+        <div id="content-reliability" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Test-Retest -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Test-Retest Reliability</h3>
+                    <div id="test-retest"></div>
+                </div>
 
-        <!-- Overview Stats -->
-        <div class="card" style="margin-bottom: 20px;">
-            <div class="card-title">Classification Performance Summary</div>
-            <div class="stat-grid" id="summary-stats">
-                <div class="stat-box">
-                    <div class="stat-value" id="avg-accuracy">--</div>
-                    <div class="stat-label">Avg. Accuracy</div>
+                <!-- Robustness Testing -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Noise Robustness</h3>
+                    <canvas id="robustness-chart" height="200"></canvas>
                 </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="avg-f1">--</div>
-                    <div class="stat-label">Avg. F1 Score</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="avg-auc">--</div>
-                    <div class="stat-label">Avg. AUC-ROC</div>
-                </div>
-            </div>
-        </div>
 
-        <!-- Dataset Cards -->
-        <div class="grid grid-3" id="dataset-cards">
-            <div class="loading">Loading datasets...</div>
-        </div>
-
-        <!-- Charts -->
-        <div class="grid grid-2" style="margin-top: 20px;">
-            <div class="card">
-                <div class="card-title">Performance Comparison</div>
-                <div class="chart-container">
-                    <canvas id="performanceChart"></canvas>
+                <!-- Artifact Resistance -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Artifact Resistance</h3>
+                    <div id="artifact-resistance"></div>
                 </div>
-            </div>
-            <div class="card">
-                <div class="card-title">Baseline Comparison</div>
-                <div class="chart-container">
-                    <canvas id="baselineChart"></canvas>
+
+                <!-- Cross-Session Stability -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Cross-Session Stability</h3>
+                    <div id="session-stability"></div>
                 </div>
             </div>
         </div>
 
-        <!-- Signal Analysis -->
-        <div class="card" style="margin-top: 20px;">
-            <div class="card-title">Signal Analysis Summary</div>
-            <div id="signal-analysis">
-                <div class="loading">Loading signal analysis...</div>
+        <!-- Model Analysis Tab -->
+        <div id="content-model" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Architecture -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Architecture Analysis</h3>
+                    <div id="architecture-info"></div>
+                </div>
+
+                <!-- Training Analysis -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Training Analysis</h3>
+                    <div id="training-info"></div>
+                </div>
+
+                <!-- Ablation Study -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Ablation Study</h3>
+                    <canvas id="ablation-chart" height="200"></canvas>
+                </div>
+
+                <!-- Deployment Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Deployment Metrics</h3>
+                    <div id="deployment-info"></div>
+                </div>
             </div>
         </div>
 
-        <!-- Feature Importance -->
-        <div class="card" style="margin-top: 20px;">
-            <div class="card-title">Top Feature Importance</div>
-            <table id="feature-table">
-                <thead>
-                    <tr>
-                        <th>Rank</th>
-                        <th>Feature</th>
-                        <th>Importance</th>
-                        <th>p-value</th>
-                    </tr>
-                </thead>
-                <tbody id="feature-tbody">
-                    <tr><td colspan="4" class="loading">Loading...</td></tr>
-                </tbody>
-            </table>
+        <!-- LOSO Analysis Tab -->
+        <div id="content-loso" class="tab-content hidden">
+            <div class="grid grid-cols-1 gap-6">
+                <!-- Aggregate Stats -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">LOSO Aggregate Statistics</h3>
+                    <div id="loso-aggregate" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+                </div>
+
+                <!-- Subject-wise Chart -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Subject-Wise Performance</h3>
+                    <canvas id="loso-chart" height="150"></canvas>
+                </div>
+
+                <!-- Subject Table -->
+                <div class="bg-white rounded-lg shadow-md p-6 overflow-x-auto">
+                    <h3 class="text-lg font-semibold mb-4">Per-Subject Results</h3>
+                    <table class="min-w-full" id="loso-table">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Subject</th>
+                                <th class="px-4 py-2 text-left">Accuracy</th>
+                                <th class="px-4 py-2 text-left">Precision</th>
+                                <th class="px-4 py-2 text-left">Recall</th>
+                                <th class="px-4 py-2 text-left">F1</th>
+                                <th class="px-4 py-2 text-left">AUC</th>
+                                <th class="px-4 py-2 text-left">Score</th>
+                            </tr>
+                        </thead>
+                        <tbody id="loso-tbody"></tbody>
+                    </table>
+                </div>
+            </div>
         </div>
-    </div>
+
+        <!-- Feature Engineering Tab -->
+        <div id="content-features" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Time Domain -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-600">Time-Domain Features</h3>
+                    <div id="time-features"></div>
+                </div>
+
+                <!-- Spatial Features -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-green-600">Spatial Features</h3>
+                    <div id="spatial-features"></div>
+                </div>
+
+                <!-- Frequency Features -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-600">Frequency Features</h3>
+                    <div id="frequency-features"></div>
+                </div>
+
+                <!-- Preprocessing Pipeline -->
+                <div class="bg-white rounded-lg shadow-md p-6 col-span-full">
+                    <h3 class="text-lg font-semibold mb-4">Adaptive Preprocessing Pipeline</h3>
+                    <div id="preprocessing-pipeline"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Cognitive Workload Tab -->
+        <div id="content-workload" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Class Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">4-Class Performance</h3>
+                    <canvas id="workload-chart" height="200"></canvas>
+                </div>
+
+                <!-- Confusion Matrix -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Confusion Matrix</h3>
+                    <div id="confusion-matrix" class="flex justify-center"></div>
+                </div>
+
+                <!-- Aggregate Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Aggregate Metrics</h3>
+                    <div id="workload-aggregate"></div>
+                </div>
+
+                <!-- Adjacent Confusion -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4">Ordinal Consistency Analysis</h3>
+                    <div id="ordinal-analysis"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Matrix Tab -->
+        <div id="content-metrics" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <!-- Classification Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-blue-600">Classification Metrics</h3>
+                    <div id="classification-metrics"></div>
+                </div>
+
+                <!-- Training Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-green-600">Training Metrics</h3>
+                    <div id="training-metrics"></div>
+                </div>
+
+                <!-- Deployment Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-purple-600">Deployment Metrics</h3>
+                    <div id="deployment-metrics"></div>
+                </div>
+
+                <!-- Reliability Metrics -->
+                <div class="bg-white rounded-lg shadow-md p-6">
+                    <h3 class="text-lg font-semibold mb-4 text-orange-600">Reliability Metrics</h3>
+                    <div id="reliability-metrics"></div>
+                </div>
+            </div>
+        </div>
+    </main>
 
     <script>
-        // Load data from API
-        async function loadData() {
+        // Tab switching
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('tab-active');
+                el.classList.add('text-gray-600');
+            });
+            document.getElementById(`content-${tabName}`).classList.remove('hidden');
+            document.getElementById(`tab-${tabName}`).classList.add('tab-active');
+            document.getElementById(`tab-${tabName}`).classList.remove('text-gray-600');
+        }
+
+        // Load data
+        async function loadAllData() {
             try {
-                const response = await fetch('/api/hardcoded-data');
-                const data = await response.json();
+                const [clinical, reliability, model, loso, features, workload, metrics, thresholds, preprocessing] = await Promise.all([
+                    fetch('/api/analysis/clinical-validation').then(r => r.json()),
+                    fetch('/api/analysis/reliability-matrix').then(r => r.json()),
+                    fetch('/api/analysis/model-analysis').then(r => r.json()),
+                    fetch('/api/analysis/loso-results').then(r => r.json()),
+                    fetch('/api/analysis/feature-engineering').then(r => r.json()),
+                    fetch('/api/analysis/cognitive-workload').then(r => r.json()),
+                    fetch('/api/analysis/performance-metrics').then(r => r.json()),
+                    fetch('/api/analysis/clinical-thresholds').then(r => r.json()),
+                    fetch('/api/analysis/preprocessing').then(r => r.json())
+                ]);
 
-                document.getElementById('data-status').textContent = 'Loaded';
-                document.getElementById('data-status').style.background = '#10B981';
-
-                renderData(data);
+                renderClinicalValidation(clinical, thresholds);
+                renderReliability(reliability);
+                renderModelAnalysis(model);
+                renderLOSO(loso);
+                renderFeatures(features, preprocessing);
+                renderWorkload(workload);
+                renderMetrics(metrics);
             } catch (error) {
-                document.getElementById('data-status').textContent = 'Error';
-                document.getElementById('data-status').style.background = '#EF4444';
                 console.error('Error loading data:', error);
             }
         }
 
-        function renderData(data) {
-            const datasets = data.datasets || {};
-
-            // Calculate averages
-            let totalAcc = 0, totalF1 = 0, totalAuc = 0, count = 0;
-            Object.values(datasets).forEach(ds => {
-                const clf = ds.classification || {};
-                totalAcc += clf.accuracy || 0;
-                totalF1 += clf.f1_score || 0;
-                totalAuc += clf.auc_roc || 0;
-                count++;
-            });
-
-            document.getElementById('avg-accuracy').textContent = (totalAcc / count).toFixed(1) + '%';
-            document.getElementById('avg-f1').textContent = (totalF1 / count).toFixed(1) + '%';
-            document.getElementById('avg-auc').textContent = (totalAuc / count).toFixed(1) + '%';
-
-            // Render dataset cards
-            const cardsHtml = Object.entries(datasets).map(([name, ds]) => {
-                const clf = ds.classification || {};
-                const info = ds.info || {};
-                const cssClass = name.toLowerCase().replace('-', '');
-
-                return `
-                    <div class="card dataset-card ${cssClass}">
-                        <div class="card-title">${name} <span class="badge badge-primary">${info.subjects || '--'} subjects</span></div>
-
-                        <div class="signal-analysis">
-                            <div class="signal-item">
-                                <span>Accuracy</span>
-                                <strong>${clf.accuracy || '--'}%</strong>
-                            </div>
-                            <div class="metric-bar"><div class="metric-fill" style="width: ${clf.accuracy || 0}%"></div></div>
-
-                            <div class="signal-item">
-                                <span>F1 Score</span>
-                                <strong>${clf.f1_score || '--'}%</strong>
-                            </div>
-                            <div class="metric-bar"><div class="metric-fill" style="width: ${clf.f1_score || 0}%"></div></div>
-
-                            <div class="signal-item">
-                                <span>AUC-ROC</span>
-                                <strong>${clf.auc_roc || '--'}%</strong>
-                            </div>
-                            <div class="metric-bar"><div class="metric-fill" style="width: ${clf.auc_roc || 0}%"></div></div>
-
-                            <div class="signal-item">
-                                <span>Cohen's Kappa</span>
-                                <strong>${clf.cohens_kappa || '--'}</strong>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('dataset-cards').innerHTML = cardsHtml;
-
-            // Render signal analysis
-            const signalHtml = Object.entries(datasets).map(([name, ds]) => {
-                const sig = ds.signal_analysis || {};
-                const alpha = sig.alpha_suppression || {};
-                const tbr = sig.theta_beta_ratio || {};
-                const faa = sig.frontal_asymmetry || {};
-
-                return `
-                    <div style="margin-bottom: 20px;">
-                        <h4 style="color: var(--primary-light); margin-bottom: 10px;">${name}</h4>
-                        <div class="grid grid-3">
-                            <div class="stat-box">
-                                <div class="stat-value" style="font-size: 1.5rem;">${alpha.suppression_percent || '--'}%</div>
-                                <div class="stat-label">Alpha Suppression</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value" style="font-size: 1.5rem;">${tbr.delta_percent || '--'}%</div>
-                                <div class="stat-label">TBR Change</div>
-                            </div>
-                            <div class="stat-box">
-                                <div class="stat-value" style="font-size: 1.5rem;">${faa.delta_faa || '--'}</div>
-                                <div class="stat-label">FAA Delta</div>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
-
-            document.getElementById('signal-analysis').innerHTML = signalHtml;
-
-            // Render feature importance
-            const features = data.feature_importance || [];
-            const featureHtml = features.slice(0, 10).map(f => `
-                <tr>
-                    <td>${f.rank}</td>
-                    <td>${f.feature}</td>
-                    <td>${(f.importance * 100).toFixed(1)}%</td>
-                    <td>${f.p_value < 0.001 ? '<0.001' : f.p_value.toFixed(4)}</td>
-                </tr>
+        function renderClinicalValidation(data, thresholds) {
+            // Diagnostic Metrics
+            const diagnosticHtml = Object.entries(data.diagnostic_validity).map(([key, val]) => `
+                <div class="flex justify-between items-center p-2 ${val.passed ? 'bg-green-50' : 'bg-red-50'} rounded">
+                    <span class="font-medium capitalize">${key.replace(/_/g, ' ')}</span>
+                    <span class="font-bold ${val.passed ? 'text-green-600' : 'text-red-600'}">${typeof val.value === 'number' && val.value < 1 ? (val.value * 100).toFixed(1) + '%' : val.value + '%'}</span>
+                </div>
             `).join('');
+            document.getElementById('diagnostic-metrics').innerHTML = diagnosticHtml;
 
-            document.getElementById('feature-tbody').innerHTML = featureHtml || '<tr><td colspan="4">No data</td></tr>';
+            // Clinical Thresholds
+            const thresholdsHtml = thresholds.thresholds.map(t => `
+                <div class="flex justify-between items-center p-2 ${t.passed ? 'passed' : 'failed'} rounded">
+                    <span>${t.metric}</span>
+                    <span>${t.achieved} (${t.threshold})</span>
+                    <span>${t.passed ? '✓' : '✗'}</span>
+                </div>
+            `).join('');
+            document.getElementById('clinical-thresholds').innerHTML = thresholdsHtml;
 
-            // Render charts
-            renderCharts(datasets, data.baselines_comparison || []);
+            // Agreement Metrics
+            const agreementHtml = Object.entries(data.agreement_metrics).map(([key, val]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${key.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${val.value} (${val.interpretation})</span>
+                </div>
+            `).join('');
+            document.getElementById('agreement-metrics').innerHTML = agreementHtml;
+
+            // Risk Assessment
+            const riskHtml = Object.entries(data.risk_assessment).map(([key, val]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${key.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${typeof val.value === 'number' ? val.value.toFixed(1) + '%' : val.value}</span>
+                </div>
+            `).join('');
+            document.getElementById('risk-metrics').innerHTML = riskHtml;
+
+            // Composite Score
+            document.getElementById('composite-score').innerHTML = `
+                <div class="text-4xl font-bold text-green-600">${data.clinical_composite_score.value}</div>
+                <div class="text-gray-500 mt-2">${data.clinical_composite_score.formula}</div>
+                <div class="text-lg text-green-700 mt-1">${data.clinical_composite_score.interpretation}</div>
+            `;
         }
 
-        function renderCharts(datasets, baselines) {
-            // Performance Chart
-            const dsNames = Object.keys(datasets);
-            const accuracies = dsNames.map(n => datasets[n].classification?.accuracy || 0);
-            const f1Scores = dsNames.map(n => datasets[n].classification?.f1_score || 0);
-            const aucScores = dsNames.map(n => datasets[n].classification?.auc_roc || 0);
+        function renderReliability(data) {
+            // Test-Retest
+            const testRetestHtml = Object.entries(data.test_retest_reliability).map(([key, val]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${key.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${val.value} (${val.interpretation})</span>
+                </div>
+            `).join('');
+            document.getElementById('test-retest').innerHTML = testRetestHtml;
 
-            new Chart(document.getElementById('performanceChart'), {
-                type: 'bar',
+            // Robustness Chart
+            const ctx = document.getElementById('robustness-chart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
                 data: {
-                    labels: dsNames,
-                    datasets: [
-                        { label: 'Accuracy', data: accuracies, backgroundColor: '#4F46E5' },
-                        { label: 'F1 Score', data: f1Scores, backgroundColor: '#10B981' },
-                        { label: 'AUC-ROC', data: aucScores, backgroundColor: '#F59E0B' }
-                    ]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { labels: { color: '#F1F5F9' } } },
-                    scales: {
-                        y: { min: 85, max: 105, ticks: { color: '#94A3B8' }, grid: { color: '#334155' } },
-                        x: { ticks: { color: '#94A3B8' }, grid: { color: '#334155' } }
-                    }
-                }
-            });
-
-            // Baseline Chart
-            const blNames = baselines.map(b => b.method);
-            const blAccs = baselines.map(b => b.accuracy);
-            const colors = blNames.map((n, i) => i === blNames.length - 1 ? '#4F46E5' : '#64748B');
-
-            new Chart(document.getElementById('baselineChart'), {
-                type: 'bar',
-                data: {
-                    labels: blNames,
+                    labels: data.robustness_testing.noise_levels.map(n => `${n.snr_db} dB`),
                     datasets: [{
-                        label: 'Accuracy %',
-                        data: blAccs,
-                        backgroundColor: colors
+                        label: 'Accuracy (%)',
+                        data: data.robustness_testing.noise_levels.map(n => n.accuracy),
+                        borderColor: '#3b82f6',
+                        fill: false,
+                        tension: 0.1
                     }]
                 },
                 options: {
-                    indexAxis: 'y',
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: {
-                        x: { min: 70, max: 100, ticks: { color: '#94A3B8' }, grid: { color: '#334155' } },
-                        y: { ticks: { color: '#94A3B8' }, grid: { color: '#334155' } }
-                    }
+                    scales: { y: { min: 85, max: 100 } }
                 }
             });
+
+            // Artifact Resistance
+            const artifactHtml = Object.entries(data.artifact_resistance).map(([key, val]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize font-medium">${key}</span>
+                    <span>Score: ${val.resistance_score}</span>
+                    <span class="text-red-600">Drop: ${val.accuracy_drop_pct}%</span>
+                </div>
+            `).join('');
+            document.getElementById('artifact-resistance').innerHTML = artifactHtml;
+
+            // Session Stability
+            const stabilityHtml = `
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-blue-50 rounded">
+                        <div class="text-2xl font-bold text-blue-600">${data.cross_session_stability.stability_score}</div>
+                        <div class="text-sm text-gray-500">Stability Score</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded">
+                        <div class="text-2xl font-bold text-green-600">${data.cross_session_stability.correlation}</div>
+                        <div class="text-sm text-gray-500">Correlation</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('session-stability').innerHTML = stabilityHtml;
         }
 
-        // Load data on page load
-        document.addEventListener('DOMContentLoaded', loadData);
+        function renderModelAnalysis(data) {
+            // Architecture
+            const archHtml = `
+                <div class="space-y-3">
+                    <div class="flex justify-between"><span>Model Type:</span><span class="font-bold">${data.architecture_analysis.model_type}</span></div>
+                    <div class="flex justify-between"><span>Total Parameters:</span><span class="font-bold">${(data.architecture_analysis.total_parameters / 1000).toFixed(0)}K</span></div>
+                    <hr>
+                    <div class="font-medium">Component Breakdown:</div>
+                    ${data.architecture_analysis.components.map(c => `
+                        <div class="flex justify-between text-sm">
+                            <span>${c.name}</span>
+                            <span>${(c.params / 1000).toFixed(0)}K (+${c.contribution_pct}%)</span>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            document.getElementById('architecture-info').innerHTML = archHtml;
+
+            // Training
+            const trainHtml = `
+                <div class="space-y-3">
+                    <div class="flex justify-between"><span>Convergence Epoch:</span><span class="font-bold">${data.training_analysis.convergence_epoch}</span></div>
+                    <div class="flex justify-between"><span>Final Train Loss:</span><span class="font-bold">${data.training_analysis.final_train_loss}</span></div>
+                    <div class="flex justify-between"><span>Final Val Loss:</span><span class="font-bold">${data.training_analysis.final_val_loss}</span></div>
+                    <div class="flex justify-between"><span>Overfitting Gap:</span><span class="font-bold">${(data.training_analysis.overfitting_gap * 100).toFixed(1)}%</span></div>
+                </div>
+            `;
+            document.getElementById('training-info').innerHTML = trainHtml;
+
+            // Ablation Chart
+            const ablationCtx = document.getElementById('ablation-chart').getContext('2d');
+            const ablationData = Object.entries(data.ablation_study).filter(([k]) => k !== 'baseline');
+            new Chart(ablationCtx, {
+                type: 'bar',
+                data: {
+                    labels: ablationData.map(([k]) => k.replace('without_', '-')),
+                    datasets: [{
+                        label: 'Contribution (%)',
+                        data: ablationData.map(([, v]) => v.contribution),
+                        backgroundColor: '#8b5cf6'
+                    }]
+                }
+            });
+
+            // Deployment
+            const deployHtml = `
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="text-center p-4 bg-blue-50 rounded">
+                        <div class="text-2xl font-bold text-blue-600">${data.deployment_metrics.inference_time_gpu_ms}ms</div>
+                        <div class="text-sm">GPU Latency</div>
+                    </div>
+                    <div class="text-center p-4 bg-green-50 rounded">
+                        <div class="text-2xl font-bold text-green-600">${data.deployment_metrics.throughput_samples_per_sec}</div>
+                        <div class="text-sm">Samples/sec</div>
+                    </div>
+                    <div class="text-center p-4 bg-purple-50 rounded">
+                        <div class="text-2xl font-bold text-purple-600">${data.deployment_metrics.memory_footprint_mb}MB</div>
+                        <div class="text-sm">Memory</div>
+                    </div>
+                    <div class="text-center p-4 bg-orange-50 rounded">
+                        <div class="text-2xl font-bold text-orange-600">${data.deployment_metrics.model_size_mb}MB</div>
+                        <div class="text-sm">Model Size</div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('deployment-info').innerHTML = deployHtml;
+        }
+
+        function renderLOSO(data) {
+            // Aggregate Stats
+            const agg = data.aggregate;
+            const aggHtml = `
+                <div class="text-center p-4 bg-blue-50 rounded">
+                    <div class="text-2xl font-bold text-blue-600">${agg.mean_accuracy.toFixed(1)}%</div>
+                    <div class="text-sm">Mean Accuracy</div>
+                </div>
+                <div class="text-center p-4 bg-green-50 rounded">
+                    <div class="text-2xl font-bold text-green-600">${agg.mean_f1.toFixed(3)}</div>
+                    <div class="text-sm">Mean F1</div>
+                </div>
+                <div class="text-center p-4 bg-purple-50 rounded">
+                    <div class="text-2xl font-bold text-purple-600">${agg.mean_auc.toFixed(3)}</div>
+                    <div class="text-sm">Mean AUC</div>
+                </div>
+                <div class="text-center p-4 bg-orange-50 rounded">
+                    <div class="text-2xl font-bold text-orange-600">${(agg.inter_subject_variability * 100).toFixed(1)}%</div>
+                    <div class="text-sm">Variability</div>
+                </div>
+            `;
+            document.getElementById('loso-aggregate').innerHTML = aggHtml;
+
+            // LOSO Chart
+            const losoCtx = document.getElementById('loso-chart').getContext('2d');
+            new Chart(losoCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.subjects.map(s => s.subject_id),
+                    datasets: [{
+                        label: 'F1 Score',
+                        data: data.subjects.map(s => s.f1),
+                        backgroundColor: data.subjects.map(s => s.f1 >= agg.mean_f1 ? '#22c55e' : '#f97316')
+                    }]
+                },
+                options: {
+                    scales: { y: { min: 0.7, max: 1.0 } }
+                }
+            });
+
+            // Subject Table
+            const tbodyHtml = data.subjects.slice(0, 10).map(s => `
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="px-4 py-2 font-medium">${s.subject_id}</td>
+                    <td class="px-4 py-2">${s.accuracy}%</td>
+                    <td class="px-4 py-2">${s.precision}</td>
+                    <td class="px-4 py-2">${s.recall}</td>
+                    <td class="px-4 py-2 font-bold">${s.f1}</td>
+                    <td class="px-4 py-2">${s.auc}</td>
+                    <td class="px-4 py-2">${s.composite_score}</td>
+                </tr>
+            `).join('');
+            document.getElementById('loso-tbody').innerHTML = tbodyHtml;
+        }
+
+        function renderFeatures(data, preprocessing) {
+            // Time-domain
+            const timeHtml = `
+                <div class="space-y-2">
+                    <div class="font-medium text-sm text-gray-500">Temporal Statistics</div>
+                    <div class="flex flex-wrap gap-1">${data.time_domain_features.temporal_statistics.map(f => `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${f}</span>`).join('')}</div>
+                    <div class="font-medium text-sm text-gray-500 mt-3">Signal Dynamics</div>
+                    <div class="flex flex-wrap gap-1">${data.time_domain_features.signal_dynamics.map(f => `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${f}</span>`).join('')}</div>
+                    <div class="font-medium text-sm text-gray-500 mt-3">Complexity</div>
+                    <div class="flex flex-wrap gap-1">${data.time_domain_features.complexity.map(f => `<span class="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">${f}</span>`).join('')}</div>
+                </div>
+            `;
+            document.getElementById('time-features').innerHTML = timeHtml;
+
+            // Spatial
+            const spatialHtml = `
+                <div class="space-y-2">
+                    <div class="font-medium text-sm text-gray-500">Connectivity</div>
+                    <div class="flex flex-wrap gap-1">${data.spatial_features.connectivity.map(f => `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">${f}</span>`).join('')}</div>
+                    <div class="font-medium text-sm text-gray-500 mt-3">Region Pooling</div>
+                    <div class="flex flex-wrap gap-1">${data.spatial_features.region_pooling.map(f => `<span class="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">${f}</span>`).join('')}</div>
+                </div>
+            `;
+            document.getElementById('spatial-features').innerHTML = spatialHtml;
+
+            // Frequency
+            const freqHtml = Object.entries(data.frequency_features.bands).map(([band, info]) => `
+                <div class="p-2 border-b">
+                    <div class="font-medium capitalize">${band}</div>
+                    <div class="text-xs text-gray-500">${info.range}</div>
+                    <div class="text-xs text-gray-400">${info.function}</div>
+                </div>
+            `).join('');
+            document.getElementById('frequency-features').innerHTML = freqHtml;
+
+            // Preprocessing
+            const preprocHtml = `
+                <div class="overflow-x-auto">
+                    <table class="min-w-full">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-4 py-2 text-left">Stage</th>
+                                <th class="px-4 py-2 text-left">Methods</th>
+                                <th class="px-4 py-2 text-left">Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${preprocessing.standard_stages.map(s => `
+                                <tr class="border-b">
+                                    <td class="px-4 py-2 font-medium">${s.stage}</td>
+                                    <td class="px-4 py-2 text-sm">${s.methods}</td>
+                                    <td class="px-4 py-2 text-sm text-gray-500">${s.purpose}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+            `;
+            document.getElementById('preprocessing-pipeline').innerHTML = preprocHtml;
+        }
+
+        function renderWorkload(data) {
+            // Class Metrics Chart
+            const workloadCtx = document.getElementById('workload-chart').getContext('2d');
+            new Chart(workloadCtx, {
+                type: 'bar',
+                data: {
+                    labels: data.classes,
+                    datasets: [
+                        { label: 'Precision', data: data.classes.map(c => data.class_metrics[c].precision), backgroundColor: '#3b82f6' },
+                        { label: 'Recall', data: data.classes.map(c => data.class_metrics[c].recall), backgroundColor: '#22c55e' },
+                        { label: 'F1', data: data.classes.map(c => data.class_metrics[c].f1), backgroundColor: '#8b5cf6' }
+                    ]
+                },
+                options: { scales: { y: { min: 0.8, max: 1.0 } } }
+            });
+
+            // Confusion Matrix
+            const cm = data.confusion_matrix;
+            const cmHtml = `
+                <table class="border-collapse">
+                    <tr><td></td>${data.classes.map(c => `<td class="px-3 py-1 text-xs font-medium text-center">${c}</td>`).join('')}</tr>
+                    ${cm.map((row, i) => `
+                        <tr>
+                            <td class="px-3 py-1 text-xs font-medium">${data.classes[i]}</td>
+                            ${row.map((val, j) => `<td class="px-3 py-1 text-center ${i === j ? 'bg-green-100' : val > 10 ? 'bg-red-50' : ''}">${val}</td>`).join('')}
+                        </tr>
+                    `).join('')}
+                </table>
+            `;
+            document.getElementById('confusion-matrix').innerHTML = cmHtml;
+
+            // Aggregate
+            const aggHtml = Object.entries(data.aggregate_metrics).map(([k, v]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${k.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${v}</span>
+                </div>
+            `).join('');
+            document.getElementById('workload-aggregate').innerHTML = aggHtml;
+
+            // Ordinal Analysis
+            const ordHtml = Object.entries(data.adjacent_confusion_analysis).map(([k, v]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${k.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${typeof v === 'number' ? (v * 100).toFixed(1) + '%' : v}</span>
+                </div>
+            `).join('');
+            document.getElementById('ordinal-analysis').innerHTML = ordHtml;
+        }
+
+        function renderMetrics(data) {
+            // Classification
+            const classHtml = Object.entries(data.classification_metrics).map(([k, v]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${k.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${typeof v.value === 'number' && v.value < 1 ? v.value.toFixed(3) : v.value + '%'}</span>
+                </div>
+            `).join('');
+            document.getElementById('classification-metrics').innerHTML = classHtml;
+
+            // Training
+            const trainHtml = Object.entries(data.training_metrics).map(([k, v]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${k.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${v.value}</span>
+                </div>
+            `).join('');
+            document.getElementById('training-metrics').innerHTML = trainHtml;
+
+            // Deployment
+            const deployHtml = Object.entries(data.deployment_metrics).map(([k, v]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${k.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${v.value}${k.includes('time') ? ' ms' : k.includes('mb') ? ' MB' : ''}</span>
+                </div>
+            `).join('');
+            document.getElementById('deployment-metrics').innerHTML = deployHtml;
+
+            // Reliability
+            const relHtml = Object.entries(data.reliability_metrics).map(([k, v]) => `
+                <div class="flex justify-between p-2 border-b">
+                    <span class="capitalize">${k.replace(/_/g, ' ')}</span>
+                    <span class="font-bold">${v.value}</span>
+                </div>
+            `).join('');
+            document.getElementById('reliability-metrics').innerHTML = relHtml;
+        }
+
+        // Initialize
+        loadAllData();
     </script>
 </body>
 </html>
