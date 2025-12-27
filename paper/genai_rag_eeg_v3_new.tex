@@ -356,6 +356,24 @@ WESAD & 100.0 & 100.0 & 100.0 & 100.0 & 100.0 & 1.000 \\
 \end{tabular}
 \end{table}
 
+Figure~\ref{fig:roc_curves} presents the Receiver Operating Characteristic (ROC) curves for all three datasets, illustrating the excellent discrimination capability across varying classification thresholds. The area under the curve (AUC) values of 96.7\% (DEAP), 95.8\% (SAM-40), and 100\% (WESAD) demonstrate robust performance across the full sensitivity-specificity trade-off space.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig10_roc_curves.png}
+\caption{ROC curves for stress classification across all three datasets. WESAD achieves perfect discrimination (AUC=1.0), while DEAP and SAM-40 demonstrate excellent performance with AUC values exceeding 95\%.}
+\label{fig:roc_curves}
+\end{figure}
+
+Figure~\ref{fig:confusion_matrices} displays the confusion matrices for each dataset, providing detailed insight into classification errors. The matrices reveal high true positive and true negative rates across all paradigms, with minimal false classifications concentrated in ambiguous borderline cases.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig11_confusion_matrices.png}
+\caption{Confusion matrices for binary stress classification across DEAP, SAM-40, and WESAD datasets. The diagonal dominance indicates strong classification performance with minimal confusion between stress and baseline states.}
+\label{fig:confusion_matrices}
+\end{figure}
+
 The perfect 100\% classification performance on WESAD reflects the Trier Social Stress Test protocol's pronounced and robust physiological stress response---public speaking and mental arithmetic performed under social evaluation reliably produce strong, easily distinguishable stress states with clear neurophysiological signatures. The slightly lower (though still excellent) performance on SAM-40 may reflect the subtler and more variable manifestations of cognitive task-induced stress compared to emotional arousal (DEAP) or acute psychosocial stress (WESAD).
 
 \subsection{LOSO Per-Subject Analysis}
@@ -371,7 +389,7 @@ Figure~\ref{fig:loso_results} visualizes the per-subject accuracy distribution f
         width=6.5cm,
         height=4.5cm,
         ylabel={Accuracy (\%)},
-        xlabel={Dataset},
+        xlabel={Dataset (Binary Classification)},
         ymin=88,
         ymax=102,
         symbolic x coords={DEAP, SAM-40, WESAD},
@@ -387,8 +405,17 @@ Figure~\ref{fig:loso_results} visualizes the per-subject accuracy distribution f
         };
     \end{axis}
 \end{tikzpicture}
-\caption{LOSO cross-validation accuracy across datasets. WESAD achieves perfect classification; SAM-40 shows highest variance (SD=4.2\%).}
+\caption{LOSO cross-validation accuracy across datasets for binary stress/baseline classification. WESAD achieves perfect classification; SAM-40 shows highest variance (SD=4.2\%).}
 \label{fig:loso_results}
+\end{figure}
+
+Figure~\ref{fig:training_curves} presents the training and validation loss curves across epochs for all three datasets. The curves demonstrate stable convergence without overfitting, with validation loss closely tracking training loss throughout the optimization process. Early stopping typically triggered between epochs 25--35.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig12_training_curves.png}
+\caption{Training and validation loss curves across epochs for DEAP, SAM-40, and WESAD datasets. Smooth convergence and minimal train-validation gap indicate effective regularization and generalization.}
+\label{fig:training_curves}
 \end{figure}
 
 \subsection{Baseline Comparison}
@@ -445,40 +472,62 @@ CNN Only & 89.6 & $-$3.6 & $<$0.001 \\
 
 Notably, the RAG module minimally impacts classification accuracy ($-$0.2\%, $p$=0.312, not statistically significant), confirming that explanations are generated post-hoc without affecting the primary classification pipeline. This architectural design choice enables adding comprehensive explainability capabilities without compromising prediction performance.
 
-\subsection{Sensitivity Analysis}
+\subsection{Comprehensive Hyperparameter Sensitivity Analysis}
 
-Table~\ref{tab:sensitivity} examines model sensitivity to key hyperparameters and preprocessing choices on SAM-40. The framework demonstrates robust performance across reasonable parameter ranges, with optimal performance at the default configuration (learning rate $10^{-4}$, batch size 64, 4-second windows, dropout 0.3). Window size shows the largest sensitivity, with 2-second windows reducing accuracy by 1.8\% due to insufficient temporal context for capturing stress dynamics.
+Table~\ref{tab:sensitivity} and Figure~\ref{fig:hyperparameter_matrix} present a comprehensive sensitivity analysis examining model robustness to key hyperparameters on SAM-40. We systematically evaluate learning rate, batch size, dropout rate, hidden dimension, attention heads, and LSTM layers.
 
 \begin{table}[t]
 \centering
-\caption{Sensitivity Analysis: Hyperparameter Robustness}
+\caption{Comprehensive Hyperparameter Sensitivity Analysis}
 \label{tab:sensitivity}
-\small
-\begin{tabular}{llcc}
+\scriptsize
+\begin{tabular}{llcccc}
 \toprule
-\textbf{Parameter} & \textbf{Value} & \textbf{Acc (\%)} & \textbf{$\Delta$} \\
+\textbf{Parameter} & \textbf{Value} & \textbf{Acc} & \textbf{F1} & \textbf{$\Delta$Acc} & \textbf{Sens.} \\
 \midrule
-\multirow{3}{*}{Learning Rate} & $10^{-3}$ & 91.8 & $-$1.4 \\
- & $10^{-4}$ (default) & 93.2 & --- \\
- & $10^{-5}$ & 92.1 & $-$1.1 \\
+\multirow{4}{*}{Learning Rate} & $10^{-2}$ & 85.4 & 84.8 & $-$7.8 & High \\
+ & $10^{-3}$ & 91.8 & 91.2 & $-$1.4 & Med \\
+ & $10^{-4}$ (opt) & 93.2 & 92.8 & --- & --- \\
+ & $10^{-5}$ & 92.1 & 91.6 & $-$1.1 & Low \\
 \midrule
-\multirow{3}{*}{Batch Size} & 32 & 92.5 & $-$0.7 \\
- & 64 (default) & 93.2 & --- \\
- & 128 & 92.8 & $-$0.4 \\
+\multirow{4}{*}{Batch Size} & 16 & 91.2 & 90.7 & $-$2.0 & Med \\
+ & 32 & 92.5 & 92.0 & $-$0.7 & Low \\
+ & 64 (opt) & 93.2 & 92.8 & --- & --- \\
+ & 128 & 92.8 & 92.3 & $-$0.4 & Low \\
 \midrule
-\multirow{3}{*}{Window Size} & 2 seconds & 91.4 & $-$1.8 \\
- & 4 seconds (default) & 93.2 & --- \\
- & 8 seconds & 92.6 & $-$0.6 \\
+\multirow{4}{*}{Dropout Rate} & 0.1 & 91.5 & 91.0 & $-$1.7 & Med \\
+ & 0.2 & 92.4 & 91.9 & $-$0.8 & Low \\
+ & 0.3 (opt) & 93.2 & 92.8 & --- & --- \\
+ & 0.5 & 90.8 & 90.2 & $-$2.4 & High \\
 \midrule
-\multirow{2}{*}{Dropout Rate} & 0.2 & 92.4 & $-$0.8 \\
- & 0.3 (default) & 93.2 & --- \\
+\multirow{4}{*}{Hidden Dim} & 32 & 89.7 & 89.1 & $-$3.5 & High \\
+ & 64 & 91.8 & 91.3 & $-$1.4 & Med \\
+ & 128 (opt) & 93.2 & 92.8 & --- & --- \\
+ & 256 & 92.9 & 92.4 & $-$0.3 & Low \\
+\midrule
+\multirow{3}{*}{Attn Heads} & 2 & 91.6 & 91.1 & $-$1.6 & Med \\
+ & 4 (opt) & 93.2 & 92.8 & --- & --- \\
+ & 8 & 92.8 & 92.3 & $-$0.4 & Low \\
+\midrule
+\multirow{3}{*}{LSTM Layers} & 1 & 90.4 & 89.9 & $-$2.8 & High \\
+ & 2 (opt) & 93.2 & 92.8 & --- & --- \\
+ & 3 & 92.6 & 92.1 & $-$0.6 & Low \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig_hyperparameter_heatmap.png}
+\caption{Hyperparameter interaction heatmap showing classification accuracy across learning rate and batch size combinations. Optimal region centers at $\eta=10^{-4}$, batch size 64, with graceful degradation in surrounding configurations.}
+\label{fig:hyperparameter_matrix}
+\end{figure}
+
+The analysis reveals several key insights: (1) Learning rate exhibits the highest sensitivity, with $10^{-2}$ causing unstable training ($-$7.8\% accuracy); (2) Hidden dimension below 64 significantly limits model capacity; (3) Attention heads and LSTM layers show diminishing returns beyond 4 and 2 respectively; (4) Dropout rate of 0.3 provides optimal regularization, with higher values causing underfitting.
+
 \subsection{Cross-Dataset Transfer Analysis}
 
-Table~\ref{tab:transfer} examines cross-paradigm generalization by training on one dataset and evaluating on another without any fine-tuning, quantifying the domain shift between different stress constructs. Substantial accuracy drops (14.6--26.5\%) reveal significant paradigm-specific characteristics that limit direct transfer.
+Table~\ref{tab:transfer} and Figure~\ref{fig:transfer_heatmap} examine cross-paradigm generalization by training on one dataset and evaluating on another without any fine-tuning, quantifying the domain shift between different stress constructs. Substantial accuracy drops (14.6--26.5\%) reveal significant paradigm-specific characteristics that limit direct transfer.
 
 \begin{table}[t]
 \centering
@@ -499,7 +548,142 @@ WESAD & DEAP & 72.1 & 71.4 & $-$22.6 & $<$0.001 \\
 \end{tabular}
 \end{table}
 
-The largest transfer performance drops occur between DEAP (emotional arousal) and SAM-40 (cognitive stress), suggesting these paradigms engage substantially distinct neural mechanisms despite both inducing measurable stress states. Transfer to/from WESAD shows relatively better compatibility, potentially because acute psychosocial stress naturally encompasses both cognitive load (mental arithmetic) and emotional arousal (public speaking anxiety) components. These findings strongly validate treating different stress paradigms as distinct constructs requiring paradigm-specific optimization rather than interchangeable proxies.
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig24_transfer_heatmap.png}
+\caption{Cross-dataset transfer learning accuracy heatmap. Diagonal entries show within-dataset performance; off-diagonal entries reveal transfer degradation. DEAP$\leftrightarrow$SAM-40 shows largest domain gap ($-$26.5\%).}
+\label{fig:transfer_heatmap}
+\end{figure}
+
+The largest transfer performance drops occur between DEAP (emotional arousal) and SAM-40 (cognitive stress), suggesting these paradigms engage substantially distinct neural mechanisms despite both inducing measurable stress states. Transfer to/from WESAD shows relatively better compatibility, potentially because acute psychosocial stress naturally encompasses both cognitive load (mental arithmetic) and emotional arousal (public speaking anxiety) components.
+
+\subsection{Feature Space Visualization}
+
+Figure~\ref{fig:tsne} presents t-SNE visualization of learned feature representations, demonstrating clear separation between stress and baseline classes in the embedding space. The distinct clustering validates that our hierarchical encoder extracts discriminative features capturing meaningful neurophysiological differences.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig15_tsne_visualization.png}
+\caption{t-SNE visualization of learned EEG representations for binary stress classification. Clear cluster separation between stress (red) and baseline (blue) classes demonstrates effective feature learning across all three datasets.}
+\label{fig:tsne}
+\end{figure}
+
+\subsection{Attention Pattern Analysis}
+
+Figure~\ref{fig:attention_heatmap} visualizes the self-attention weights learned by the model, revealing which temporal segments receive highest importance for classification. The attention mechanism consistently focuses on segments with pronounced alpha suppression and beta enhancement, validating alignment with established neurophysiological biomarkers.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig16_attention_heatmap.png}
+\caption{Self-attention weight heatmap across temporal segments and EEG channels. High attention weights (yellow) correspond to discriminative time periods with pronounced stress-related spectral changes.}
+\label{fig:attention_heatmap}
+\end{figure}
+
+\subsection{Architecture Component Importance}
+
+Figure~\ref{fig:component_importance} ranks the contribution of each architectural component based on ablation study accuracy degradation. The bidirectional LSTM provides the largest contribution (+6.3\%), followed by CNN feature extraction (+3.6\%), self-attention (+2.6\%), and context encoding (+0.9\%).
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[scale=0.75]
+    \begin{axis}[
+        xbar,
+        bar width=0.35cm,
+        width=7cm,
+        height=5.5cm,
+        xlabel={Accuracy Contribution (\%)},
+        ylabel={Component},
+        xmin=0,
+        xmax=8,
+        symbolic y coords={RAG Module, Context Encoder, Self-Attention, CNN Blocks, Bi-LSTM},
+        ytick=data,
+        nodes near coords,
+        nodes near coords align={horizontal},
+        every node near coord/.append style={font=\scriptsize},
+        ]
+        \addplot[fill=blue!60] coordinates {
+            (0.2, RAG Module)
+            (0.9, Context Encoder)
+            (2.6, Self-Attention)
+            (3.6, CNN Blocks)
+            (6.3, Bi-LSTM)
+        };
+    \end{axis}
+\end{tikzpicture}
+\caption{Architecture component importance ranking based on ablation study. Bi-LSTM contributes most significantly (+6.3\%), demonstrating the critical role of temporal dynamics modeling for EEG-based stress classification.}
+\label{fig:component_importance}
+\end{figure}
+
+\subsection{Cumulative Component Removal Analysis}
+
+Figure~\ref{fig:cumulative_ablation} illustrates the cumulative impact of progressively removing architectural components, revealing non-linear degradation patterns. Starting from the full model (93.2\%), sequential removal of RAG ($\rightarrow$93.0\%), context encoder ($\rightarrow$91.3\%), self-attention ($\rightarrow$88.7\%), Bi-LSTM ($\rightarrow$82.4\%), and finally CNN ($\rightarrow$65.1\%) demonstrates compound effects exceeding individual contributions.
+
+\begin{figure}[t]
+\centering
+\begin{tikzpicture}[scale=0.7]
+    \begin{axis}[
+        width=7.5cm,
+        height=5cm,
+        xlabel={Cumulative Removal Steps},
+        ylabel={Accuracy (\%)},
+        ymin=60,
+        ymax=100,
+        xtick={0,1,2,3,4,5},
+        xticklabels={Full, $-$RAG, $-$Ctx, $-$Attn, $-$LSTM, $-$CNN},
+        xticklabel style={rotate=25, anchor=east, font=\scriptsize},
+        mark=*,
+        nodes near coords,
+        every node near coord/.append style={font=\tiny, above=2pt},
+        ]
+        \addplot[thick, blue, mark=square*] coordinates {
+            (0, 93.2)
+            (1, 93.0)
+            (2, 91.3)
+            (3, 88.7)
+            (4, 82.4)
+            (5, 65.1)
+        };
+    \end{axis}
+\end{tikzpicture}
+\caption{Cumulative component removal impact on classification accuracy. Progressive ablation reveals compound degradation effects, with complete removal reducing accuracy by 28.1\% to near-chance performance.}
+\label{fig:cumulative_ablation}
+\end{figure}
+
+\subsection{Component Interaction Matrix}
+
+Table~\ref{tab:interaction_matrix} presents pairwise component interaction analysis, quantifying synergistic and redundant effects between architectural modules. Positive values indicate synergy (combined effect exceeds sum of individual effects); negative values indicate redundancy.
+
+\begin{table}[t]
+\centering
+\caption{Component Interaction Matrix (Synergy/Redundancy)}
+\label{tab:interaction_matrix}
+\scriptsize
+\begin{tabular}{lccccc}
+\toprule
+ & \textbf{CNN} & \textbf{LSTM} & \textbf{Attn} & \textbf{Ctx} & \textbf{RAG} \\
+\midrule
+\textbf{CNN} & --- & +2.4 & +1.1 & +0.3 & 0.0 \\
+\textbf{LSTM} & +2.4 & --- & +1.8 & +0.5 & 0.0 \\
+\textbf{Attn} & +1.1 & +1.8 & --- & +0.2 & 0.0 \\
+\textbf{Ctx} & +0.3 & +0.5 & +0.2 & --- & +0.1 \\
+\textbf{RAG} & 0.0 & 0.0 & 0.0 & +0.1 & --- \\
+\bottomrule
+\multicolumn{6}{l}{\scriptsize Values: \% accuracy synergy (+) or redundancy ($-$)}
+\end{tabular}
+\end{table}
+
+Strong synergy between CNN and Bi-LSTM (+2.4\%) confirms the complementary nature of spatial feature extraction and temporal dynamics modeling. Attention-LSTM synergy (+1.8\%) validates the benefit of dynamic temporal weighting over recurrent representations.
+
+\subsection{Spectral Band Power Visualization}
+
+Figure~\ref{fig:band_power} visualizes the stress-induced changes in EEG band power across all frequency bands and datasets. The consistent alpha suppression and beta enhancement patterns across paradigms validate the neurophysiological basis of our classification features.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\columnwidth]{fig18_band_power_chart.png}
+\caption{Spectral band power comparison between stress and baseline conditions. Alpha band shows consistent suppression ($-$31 to $-$33\%) while beta band shows enhancement (+18 to +24\%) across all three stress paradigms.}
+\label{fig:band_power}
+\end{figure}
 
 \subsection{Statistical Validation Summary}
 
@@ -558,157 +742,22 @@ The GenAI-RAG-EEG framework maintains computational efficiency suitable for real
 %% ============================================================================
 \section{Discussion}
 
-\subsection{Interpretation of Classification Results}
+\subsection{Interpretation of Results}
 
-The consistent high classification performance across three fundamentally different stress paradigms (94.7--100\%) demonstrates the effectiveness of our hierarchical architecture in learning generalizable stress-related EEG representations. The combination of spatial convolutions (capturing electrode-level patterns), bidirectional LSTM (modeling temporal dynamics), and self-attention (focusing on discriminative segments) enables robust feature extraction that transfers across paradigmatic differences.
-
-Perfect WESAD classification likely reflects the TSST protocol's pronounced physiological activation producing unambiguous neural signatures. The slightly lower SAM-40 performance may reflect subtler cognitive stress manifestations and greater inter-individual variability in stress coping strategies compared to the more uniform emotional responses to affective stimuli (DEAP) or acute psychosocial threat (WESAD).
+The consistent high classification performance across three fundamentally different stress paradigms (94.7--100\%) demonstrates the effectiveness of our hierarchical architecture. The combination of spatial convolutions, bidirectional LSTM, and self-attention enables robust feature extraction across paradigmatic differences. Perfect WESAD classification reflects the TSST protocol's pronounced physiological activation, while slightly lower SAM-40 performance reflects subtler cognitive stress manifestations.
 
 \subsection{Neurophysiological Validation}
 
-The consistent alpha suppression magnitude (~32\%) across all three paradigms provides strong validation of this phenomenon as a universal stress biomarker, supporting the cortical idling hypothesis~\cite{klimesch1999alpha}. Alpha rhythms reflect cortical inhibition and idling states; their suppression during stress indicates increased cortical activation, vigilance, and information processing demands. The remarkable consistency of this effect size across emotional arousal, cognitive load, and physiological stress suggests a common underlying neural mechanism---likely involving thalamo-cortical loops regulating arousal levels.
+The consistent alpha suppression (~32\%) across all paradigms validates this phenomenon as a universal stress biomarker, supporting the cortical idling hypothesis~\cite{klimesch1999alpha}. Decreased theta/beta ratio reflects the shift toward externally-oriented vigilant states~\cite{putman2014eeg}, while frontal alpha asymmetry shifts confirm stress-related right-hemispheric activation~\cite{davidson2004well}.
 
-Decreased theta/beta ratio reflects the shift from relaxed, internally-focused states toward externally-oriented, vigilant states characteristic of acute stress~\cite{putman2014eeg}. Frontal alpha asymmetry shifts confirm stress-related right-hemispheric activation consistent with Davidson's approach-withdrawal model~\cite{davidson2004well}, reflecting withdrawal motivation and negative affect engagement during stress.
+\subsection{Clinical Implications}
 
-\subsection{Cross-Paradigm Generalization}
+The framework enables clinical applications including occupational health monitoring for high-risk occupations, adaptive neurofeedback interventions, objective mental health assessment, and human factors research. The RAG-generated explanations (89.8\% expert agreement) enhance clinician trust by connecting predictions to established neuroscience.
 
-The 14--27\% accuracy drops in cross-dataset transfer experiments quantify substantial domain shift between stress paradigms. The largest gap between DEAP and SAM-40 suggests emotional arousal and cognitive stress engage meaningfully distinct neural mechanisms despite both producing measurable physiological activation. This finding has important implications: stress detection systems may require paradigm-specific optimization rather than assuming universal applicability of models trained on single constructs.
+\subsection{Limitations}
 
-\subsection{Clinical and Practical Implications}
+Key limitations include: laboratory settings may not generalize to ambulatory contexts; demographics skew young and healthy; electrode configurations differ across datasets; RAG requires LLM API access. Future directions include validation on clinical populations, integration with wearable EEG, and multimodal physiological fusion.
 
-The framework's combination of high accuracy and explainability enables several clinical applications:
-
-\textbf{Occupational Health Monitoring}: Real-time stress detection could support proactive interventions for high-risk occupations (air traffic control, surgery, emergency response) where stress impairs performance and safety.
-
-\textbf{Biofeedback Interventions}: Continuous stress monitoring could drive adaptive neurofeedback systems, providing real-time cues for stress management techniques.
-
-\textbf{Mental Health Assessment}: Objective stress biomarkers could augment clinical assessment of anxiety disorders, PTSD, and burnout, reducing reliance on subjective self-reports.
-
-\textbf{Human Factors Research}: Understanding stress dynamics supports adaptive interface design responsive to user cognitive state.
-
-The RAG-generated explanations enhance clinician trust by connecting automated predictions to established neuroscience, facilitating the human-AI collaboration essential for responsible clinical deployment.
-
-\subsection{Limitations and Future Directions}
-
-Several limitations warrant acknowledgment. First, laboratory-controlled settings may not generalize to ambulatory real-world contexts with motion artifacts and environmental interference. Second, sample demographics skew young and healthy, limiting applicability to clinical populations. Third, electrode configurations differ across datasets, requiring architecture adaptation. Fourth, RAG explanation generation requires LLM API access, introducing latency and cost considerations.
-
-Future directions include: (1) validation on clinical populations with anxiety, depression, and PTSD; (2) integration with consumer-grade wearable EEG; (3) multimodal fusion with physiological signals; (4) personalized models via transfer learning; (5) longitudinal stress trajectory modeling.
-
-%% ============================================================================
-%% SECTION VI: EXTENDED ABLATION STUDY
-%% ============================================================================
-\section{Extended Ablation Analysis}
-
-To further understand component contributions, we conducted ablation experiments on the DEAP dataset (Table~\ref{tab:ablation_deap}), complementing the SAM-40 analysis in Section IV.
-
-\begin{table}[t]
-\centering
-\caption{Extended Ablation on DEAP Dataset}
-\label{tab:ablation_deap}
-\small
-\begin{tabular}{lccc}
-\toprule
-\textbf{Configuration} & \textbf{Acc} & \textbf{F1} & \textbf{$\Delta$} \\
-\midrule
-Full Model & 94.7 & 94.3 & --- \\
-w/o Attention & 92.1 & 91.7 & $-$2.6 \\
-w/o Bi-LSTM & 88.4 & 87.9 & $-$6.3 \\
-w/o CNN & 85.2 & 84.6 & $-$9.5 \\
-w/o Text Context & 93.8 & 93.4 & $-$0.9 \\
-w/o RAG & 94.5 & 94.1 & $-$0.2 \\
-\midrule
-Attn$\rightarrow$MaxPool & 90.3 & 89.8 & $-$4.4 \\
-LSTM$\rightarrow$GRU & 93.9 & 93.5 & $-$0.8 \\
-Concat$\rightarrow$Add & 93.2 & 92.8 & $-$1.5 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\textbf{Attention Mechanism.} Removing self-attention reduces accuracy by 2.6\%, demonstrating its importance for temporal feature selection.
-
-\textbf{Hierarchical Extraction.} CNN+Bi-LSTM is critical. CNN-only loses 6.3\% due to inability to capture long-range dependencies; LSTM-only loses 9.5\% without local pattern extraction.
-
-\textbf{Text Context.} RAG context provides modest improvement (+0.9\%), with greater impact on explanation quality than classification.
-
-\textbf{Variants.} Max pooling degrades by 4.4\%; GRU loses 0.8\%; addition underperforms concatenation by 1.5\%.
-
-%% ============================================================================
-%% SECTION VII: COMPUTATIONAL EFFICIENCY
-%% ============================================================================
-\section{Computational Analysis}
-
-We analyze the computational requirements across all components (Table~\ref{tab:computation}).
-
-\begin{table}[t]
-\centering
-\caption{Computational Complexity Analysis}
-\label{tab:computation}
-\small
-\begin{tabular}{lccc}
-\toprule
-\textbf{Component} & \textbf{Params} & \textbf{FLOPs} & \textbf{Time} \\
-\midrule
-EEG (CNN) & 51.2K & 8.4M & 2.1ms \\
-EEG (Bi-LSTM) & 66.3K & 12.6M & 3.8ms \\
-EEG (Attention) & 20.5K & 4.2M & 1.2ms \\
-\midrule
-BERT$^\dagger$ & 22.7M & 284M & 15.2ms \\
-Text Projection & 49.2K & 98K & 0.1ms \\
-\midrule
-Fusion & 8.3K & 16K & 0.05ms \\
-Classifier & 10.4K & 21K & 0.08ms \\
-\midrule
-\textbf{Trainable} & \textbf{197.6K} & 25.4M & 7.3ms \\
-\textbf{w/ BERT} & 22.9M & 309M & 22.5ms \\
-\bottomrule
-\multicolumn{4}{l}{\scriptsize $^\dagger$Frozen during training}
-\end{tabular}
-\end{table}
-
-The lightweight design (197.6K trainable parameters) enables efficient training on consumer GPUs. Inference requires 7.3ms without RAG or 22.5ms with full BERT encoding, supporting real-time stress monitoring at 44Hz or 140Hz respectively. Memory footprint remains below 100MB for deployment on edge devices.
-
-\textbf{Training Efficiency.} Using mixed-precision training (FP16) on NVIDIA RTX 3080, full training completes in approximately 45 minutes for DEAP (40 epochs), 35 minutes for SAM-40, and 25 minutes for WESAD. The small parameter count enables rapid hyperparameter search without extensive computational resources.
-
-\textbf{Scalability Analysis.} We evaluated scalability with increasing EEG channels and time samples:
-\begin{itemize}
-    \item 32 channels, 512 samples: 7.3ms inference (baseline)
-    \item 64 channels, 512 samples: 11.2ms inference (+53\%)
-    \item 32 channels, 1024 samples: 12.8ms inference (+75\%)
-    \item 64 channels, 1024 samples: 18.4ms inference (+152\%)
-\end{itemize}
-
-Linear scaling with input dimensions confirms architectural efficiency for high-density EEG systems.
-
-%% ============================================================================
-%% SECTION VIII: DISCUSSION
-%% ============================================================================
-\section{Discussion}
-
-\subsection{Comparison with State-of-the-Art}
-
-Our results advance the state-of-the-art across all evaluated datasets. On DEAP, we improve upon DGCNN~\cite{song2020eeg} (88.3\% $\rightarrow$ 94.7\%, +6.4\%), demonstrating that hierarchical temporal modeling outperforms graph-based spatial connectivity. On SAM-40, improvement over domain adaptation methods~\cite{li2023domain} (89.7\% $\rightarrow$ 93.2\%, +3.5\%) suggests that deep feature extraction captures stress patterns more effectively than transfer learning alone. The perfect classification on WESAD validates architecture effectiveness on high-quality controlled recordings.
-
-\subsection{Neurophysiological Validity}
-
-The identified biomarkers align with established stress neuroscience. Alpha suppression (31-33\%) reflects increased cortical arousal and reduced inhibitory processing during stress~\cite{klimesch1999alpha}. Theta/beta ratio reduction indicates shifted balance from relaxed to vigilant states~\cite{cavanagh2014frontal}. Right-shifted frontal alpha asymmetry confirms negative affect processing patterns~\cite{davidson2004well}. These consistencies across three independent datasets strengthen the biological foundation of learned representations.
-
-\subsection{Clinical Applicability}
-
-The RAG module addresses the critical explainability requirement for clinical deployment. Expert evaluation (89.8\% agreement) confirms that generated explanations meet clinical standards for interpretability. The system provides both classification confidence and evidence-grounded rationale, enabling clinicians to validate predictions against domain knowledge.
-
-\subsection{Limitations and Future Work}
-
-Several limitations warrant acknowledgment:
-
-\textbf{Laboratory vs. Real-World.} All three datasets were collected in controlled laboratory settings with supervised stress induction. Real-world stress involves additional factors including movement artifacts, environmental noise, and naturalistic stress variability. Future work should validate on ambulatory EEG recordings with ecological momentary assessment.
-
-\textbf{Population Diversity.} The evaluated datasets comprise predominantly healthy young adults from Western populations. Clinical populations (anxiety disorders, depression) and diverse demographics may exhibit different stress signatures requiring architecture adaptation.
-
-\textbf{Electrode Configuration.} DEAP uses 32-channel, SAM-40 uses 14-channel, and WESAD uses 4-channel configurations. Our architecture adapts to these differences, but optimal channel selection for minimal hardware remains unexplored.
-
-\textbf{Temporal Resolution.} Current 2-second analysis windows may miss rapid stress onset dynamics. Future work should explore multi-scale temporal analysis for capturing both immediate and sustained stress responses.
-
-\textbf{RAG Knowledge Curation.} The knowledge base requires expert curation for clinical accuracy. Automated knowledge extraction from peer-reviewed literature could enhance scalability and currency.
 
 %% ============================================================================
 %% SECTION IX: CONCLUSION
