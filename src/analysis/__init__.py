@@ -159,6 +159,24 @@ from .visualization import (
     AnalysisReportExporter
 )
 
+# Research-Grade Visualization (Publication-Ready)
+from .research_visualization import (
+    # Main suite
+    ResearchVisualizationSuite,
+
+    # Sub-modules for specialized visualization
+    TrendChartGenerator,
+    ClinicalVisualization,
+    StatisticalVisualization,
+    FlowchartGenerator,
+
+    # Publication settings
+    apply_publication_style,
+    PUBLICATION_RCPARAMS,
+    PUBLICATION_COLORS,
+    EEG_BANDS
+)
+
 __all__ = [
     # Signal analysis
     'compute_psd',
@@ -256,5 +274,16 @@ __all__ = [
     'AnalysisChartGenerator',
 
     # Document Exporter (PDF/Word/PPT)
-    'AnalysisReportExporter'
+    'AnalysisReportExporter',
+
+    # Research-Grade Visualization Suite
+    'ResearchVisualizationSuite',
+    'TrendChartGenerator',
+    'ClinicalVisualization',
+    'StatisticalVisualization',
+    'FlowchartGenerator',
+    'apply_publication_style',
+    'PUBLICATION_RCPARAMS',
+    'PUBLICATION_COLORS',
+    'EEG_BANDS'
 ]
