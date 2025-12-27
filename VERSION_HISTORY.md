@@ -4,6 +4,78 @@
 
 ---
 
+## v3.1.0 - Advanced Analysis & Publication-Ready Figures (2025-12-27)
+
+### Summary
+Added 17 advanced analysis figures to both v2 (30-page) and v3 (10-page) papers with 300 DPI exports. Updated visualization module and webapp with new API endpoints.
+
+### Paper Updates
+
+#### v3 (10-Page Paper) - `paper/genai_rag_eeg_v3_new.tex`
+- Added Precision-Recall curves
+- Added SHAP feature importance
+- Total: 11 figures, 8 tables, 30 references
+- PDF: 11 pages
+- PNG exports: `paper/paper_10page_300dpi-01.png` to `-11.png`
+
+#### v2 (30-Page Paper) - `eeg-stress-rag-v2.tex`
+- Added 17 new advanced figures:
+  - Precision-Recall curves & Calibration plots
+  - Topographical EEG maps & Time-frequency spectrograms
+  - SHAP feature importance & Feature correlation heatmap
+  - Component importance, Cumulative ablation, Interaction matrix
+  - Statistical power analysis, Forest plot, Bland-Altman plots
+  - Cross-subject generalization, Learning curves
+  - Performance distribution, Comprehensive evaluation
+- Total: 26 figures, 40+ tables, 50+ references
+- PDF: 32 pages
+- PNG exports: `paper/paper_30page_300dpi-01.png` to `-32.png`
+
+### Code Updates
+
+#### `src/analysis/visualization.py`
+Added 10 new advanced visualization functions:
+| Function | Description |
+|----------|-------------|
+| `plot_precision_recall_curves()` | PR curves with AP scores |
+| `plot_calibration_curves()` | Reliability diagrams |
+| `plot_shap_importance()` | SHAP feature importance |
+| `plot_topographical_maps()` | EEG scalp maps |
+| `plot_learning_curves()` | Training vs validation |
+| `plot_component_importance()` | Architecture ranking |
+| `plot_cumulative_ablation()` | Progressive ablation |
+| `plot_power_analysis()` | Statistical power curves |
+| `plot_cross_subject_generalization()` | Per-subject analysis |
+
+#### `webapp/app.py`
+Added 10 new API endpoints:
+| Endpoint | Data |
+|----------|------|
+| `/api/precision-recall` | PR curve data |
+| `/api/calibration` | Calibration data |
+| `/api/shap-importance` | SHAP rankings |
+| `/api/component-importance` | Architecture contributions |
+| `/api/cumulative-ablation` | Ablation results |
+| `/api/power-analysis` | Power analysis data |
+| `/api/learning-curves` | Learning curve data |
+| `/api/cross-subject` | Cross-subject stats |
+| `/api/advanced-figures` | Figure list (15 figures) |
+
+#### `generate_paper_figures.py`
+- 24 figure generation functions
+- All figures at 300 DPI
+- Output to `paper/` directory
+
+### Files Changed
+| File | Lines Added |
+|------|-------------|
+| `src/analysis/visualization.py` | +440 |
+| `webapp/app.py` | +157 |
+| `paper/genai_rag_eeg_v3_new.tex` | +20 |
+| `eeg-stress-rag-v2.tex` | +180 |
+
+---
+
 ## v3.0.0 - Camera-Ready Submission Preparation (2025-12-25)
 
 ### Summary

@@ -30,6 +30,51 @@ GenAI-RAG-EEG is a hybrid deep learning architecture for **explainable EEG-based
 
 ---
 
+## Paper Versions
+
+### v3 - 10-Page IEEE Conference Paper
+**File:** `paper/genai_rag_eeg_v3_new.tex` (11 pages with figures)
+
+| Section | Content |
+|---------|---------|
+| Figures | 11 publication-ready figures at 300 DPI |
+| Tables | 8 comprehensive tables |
+| References | 30 citations |
+| Format | IEEE two-column |
+
+**Key Figures:**
+- ROC curves, Confusion matrices, Training curves
+- Precision-Recall curves, SHAP importance
+- Hyperparameter sensitivity, Transfer learning heatmap
+- t-SNE visualization, Attention heatmap, Band power chart
+
+### v2 - 32-Page IEEE Sensors Journal Paper
+**File:** `eeg-stress-rag-v2.tex` (32 pages)
+
+| Section | Content |
+|---------|---------|
+| Figures | 26 comprehensive figures at 300 DPI |
+| Tables | 40+ detailed tables |
+| References | 50+ citations |
+| Format | IEEE Sensors Journal |
+
+**Advanced Figures Added:**
+- Precision-Recall & Calibration curves
+- Topographical EEG maps & Time-frequency spectrograms
+- SHAP feature importance & Feature correlation heatmap
+- Component importance, Cumulative ablation, Interaction matrix
+- Statistical power analysis, Forest plot, Bland-Altman plots
+- Cross-subject generalization, Learning curves
+- Performance distribution, Comprehensive evaluation
+
+### 300 DPI PNG Exports
+```
+paper/paper_10page_300dpi-01.png to -11.png   # 10-page paper
+paper/paper_30page_300dpi-01.png to -32.png   # 30-page paper
+```
+
+---
+
 ## Tech Stack
 
 ### Core Framework

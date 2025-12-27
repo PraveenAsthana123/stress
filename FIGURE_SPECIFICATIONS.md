@@ -85,6 +85,93 @@
 
 ---
 
+## ADVANCED ANALYSIS FIGURES (v3.1.0)
+
+| Fig. No. | Type | Title | File | Section |
+|----------|------|-------|------|---------|
+| Fig. 15 | Curve | Precision-Recall Curves | `fig_precision_recall.png` | Results |
+| Fig. 16 | Curve | Calibration Plots | `fig_calibration.png` | Results |
+| Fig. 17 | Bar | SHAP Feature Importance | `fig_shap_importance.png` | Results |
+| Fig. 18 | Topography | Topographical EEG Maps | `fig_topographical_maps.png` | Results |
+| Fig. 19 | TF Map | Time-Frequency Spectrograms | `fig_spectrograms.png` | Results |
+| Fig. 20 | Curve | Statistical Power Analysis | `fig_power_analysis.png` | Results |
+| Fig. 21 | Curve | Learning Curves | `fig_learning_curves.png` | Results |
+| Fig. 22 | Heatmap | Feature Correlation | `fig_feature_correlation.png` | Results |
+| Fig. 23 | Forest | Effect Size Forest Plot | `fig_forest_plot.png` | Results |
+| Fig. 24 | Scatter | Bland-Altman Plots | `fig_bland_altman.png` | Results |
+| Fig. 25 | Bar | Cross-Subject Generalization | `fig_cross_subject.png` | Results |
+| Fig. 26 | Bar | Component Importance | `fig_component_importance.png` | Ablation |
+| Fig. 27 | Bar | Cumulative Ablation | `fig_cumulative_ablation.png` | Ablation |
+| Fig. 28 | Heatmap | Component Interaction Matrix | `fig_component_interaction.png` | Ablation |
+| Fig. 29 | Violin | Performance Distribution | `fig_performance_distribution.png` | Results |
+| Fig. 30 | Radar | Comprehensive Evaluation | `fig_comprehensive_evaluation.png` | Results |
+
+### Fig. 15 — Precision-Recall Curves
+**Caption:**
+> Precision-Recall curves across datasets with Average Precision (AP) scores. All datasets achieve AP > 0.90, demonstrating robust classification performance across varying decision thresholds.
+
+### Fig. 16 — Calibration Curves
+**Caption:**
+> Calibration curves (reliability diagrams) comparing predicted probabilities against actual outcomes. Closer alignment to the diagonal indicates better calibration.
+
+### Fig. 17 — SHAP Feature Importance
+**Caption:**
+> SHAP summary plot showing feature importance and directionality. Frontal alpha and beta features show the strongest contributions to stress classification, consistent with neurophysiological expectations.
+
+### Fig. 18 — Topographical EEG Maps
+**Caption:**
+> Topographical scalp maps showing stress-induced changes in EEG power across alpha and beta bands. Blue indicates decreased power (alpha suppression), red indicates increased power (beta enhancement).
+
+### Fig. 19 — Time-Frequency Spectrograms
+**Caption:**
+> Time-frequency spectrograms showing spectral power evolution. Stress conditions show characteristic alpha suppression (8–13 Hz) and beta enhancement (13–30 Hz) patterns.
+
+### Fig. 20 — Statistical Power Analysis
+**Caption:**
+> Statistical power analysis curves showing achieved power (>0.99) for observed effect sizes across all datasets. The dashed line indicates the conventional 0.80 power threshold.
+
+### Fig. 21 — Learning Curves
+**Caption:**
+> Learning curves showing training and validation performance as a function of training set size. Rapid convergence indicates efficient sample utilization.
+
+### Fig. 22 — Feature Correlation Heatmap
+**Caption:**
+> Feature correlation heatmap showing relationships between top discriminative EEG features. High correlation within frequency bands suggests complementary spatial information.
+
+### Fig. 23 — Effect Size Forest Plot
+**Caption:**
+> Forest plot of effect sizes (Cohen's d) across key comparisons. All comparisons show large effect sizes (d > 0.8) with non-overlapping confidence intervals from zero.
+
+### Fig. 24 — Bland-Altman Plots
+**Caption:**
+> Bland-Altman plots for each dataset showing the difference between predicted and actual values against their mean. Limits of agreement (LoA) are shown as dashed lines.
+
+### Fig. 25 — Cross-Subject Generalization
+**Caption:**
+> Cross-subject generalization analysis showing accuracy distribution across individual subjects. The consistent performance across subjects demonstrates robust generalization.
+
+### Fig. 26 — Component Importance Ranking
+**Caption:**
+> Architectural component importance ranking based on accuracy contribution. The hierarchical CNN-LSTM feature extraction provides the largest contribution (+9.5%), followed by self-attention (+2.6%).
+
+### Fig. 27 — Cumulative Ablation Analysis
+**Caption:**
+> Cumulative ablation analysis showing progressive performance degradation as components are removed. The steep decline after LSTM removal confirms the critical role of temporal modeling.
+
+### Fig. 28 — Component Interaction Matrix
+**Caption:**
+> Component interaction matrix showing synergy (+) and redundancy (−) between architectural modules. CNN-LSTM synergy (+2.4%) confirms complementary spatial-temporal processing.
+
+### Fig. 29 — Performance Distribution
+**Caption:**
+> Performance distribution across datasets showing accuracy, precision, recall, and F1-score distributions via violin plots with embedded box plots.
+
+### Fig. 30 — Comprehensive Evaluation
+**Caption:**
+> Comprehensive evaluation summary showing classification performance, signal analysis metrics, and RAG explanation quality across all datasets. Radar chart format enables direct cross-dataset comparison.
+
+---
+
 ## ARCHITECTURE DIAGRAMS (ASCII SPECIFICATIONS)
 
 ### Fig. 1 — System Architecture
