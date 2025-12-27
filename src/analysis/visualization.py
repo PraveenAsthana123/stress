@@ -1350,6 +1350,544 @@ def plot_cross_subject_generalization(
 
 
 # =============================================================================
+# GLOBAL CHART GENERATOR CLASS
+# =============================================================================
+
+class AnalysisChartGenerator:
+    """
+    Global chart generator for creating publication-ready visualizations.
+
+    Usage from any folder:
+        from src.analysis import AnalysisChartGenerator
+
+        charts = AnalysisChartGenerator(output_dir='./figures')
+        charts.generate_all_charts()
+        charts.save_chart('roc_curve', format='svg')
+        charts.save_chart('confusion_matrix', format='png')
+    """
+
+    SUPPORTED_FORMATS = ['png', 'svg', 'pdf', 'eps']
+
+    def __init__(self, output_dir: str = './figures', dpi: int = 300):
+        """Initialize chart generator.
+
+        Args:
+            output_dir: Directory to save charts
+            dpi: Resolution for raster formats
+        """
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+        self.dpi = dpi
+        self.charts = {}
+
+    def generate_roc_curve(self, y_true: np.ndarray, y_prob: np.ndarray,
+                          title: str = "ROC Curve") -> plt.Figure:
+        """Generate ROC curve."""
+        fig = plot_roc_curve(y_true, y_prob, title=title)
+        self.charts['roc_curve'] = fig
+        return fig
+
+    def generate_confusion_matrix(self, y_true: np.ndarray, y_pred: np.ndarray,
+                                  class_names: List[str] = None) -> plt.Figure:
+        """Generate confusion matrix."""
+        if class_names is None:
+            class_names = ['Baseline', 'Stress']
+        fig = plot_confusion_matrix(y_true, y_pred, class_names=class_names)
+        self.charts['confusion_matrix'] = fig
+        return fig
+
+    def generate_band_power(self, band_results: List[Dict]) -> plt.Figure:
+        """Generate band power comparison chart."""
+        fig = plot_band_power_comparison(band_results)
+        self.charts['band_power'] = fig
+        return fig
+
+    def generate_effect_sizes(self, comparisons: List[Dict]) -> plt.Figure:
+        """Generate effect size forest plot."""
+        fig = plot_effect_size_forest(comparisons)
+        self.charts['effect_sizes'] = fig
+        return fig
+
+    def generate_learning_curves(self) -> plt.Figure:
+        """Generate learning curves."""
+        fig = plot_learning_curves()
+        self.charts['learning_curves'] = fig
+        return fig
+
+    def generate_topographical_maps(self) -> plt.Figure:
+        """Generate EEG topographical maps."""
+        fig = plot_topographical_maps()
+        self.charts['topographical_maps'] = fig
+        return fig
+
+    def generate_shap_importance(self) -> plt.Figure:
+        """Generate SHAP feature importance."""
+        fig = plot_shap_importance()
+        self.charts['shap_importance'] = fig
+        return fig
+
+    def generate_cross_subject(self) -> plt.Figure:
+        """Generate cross-subject generalization analysis."""
+        fig = plot_cross_subject_generalization()
+        self.charts['cross_subject'] = fig
+        return fig
+
+    def generate_precision_recall(self, results: Dict = None) -> plt.Figure:
+        """Generate precision-recall curves."""
+        fig = plot_precision_recall_curves(results or {})
+        self.charts['precision_recall'] = fig
+        return fig
+
+    def generate_calibration(self) -> plt.Figure:
+        """Generate calibration curves."""
+        fig = plot_calibration_curves()
+        self.charts['calibration'] = fig
+        return fig
+
+    def generate_ablation(self) -> plt.Figure:
+        """Generate cumulative ablation chart."""
+        fig = plot_cumulative_ablation()
+        self.charts['ablation'] = fig
+        return fig
+
+    def generate_power_analysis(self) -> plt.Figure:
+        """Generate power analysis curves."""
+        fig = plot_power_analysis()
+        self.charts['power_analysis'] = fig
+        return fig
+
+    def save_chart(self, chart_name: str, format: str = 'png',
+                  filename: str = None) -> str:
+        """Save a specific chart.
+
+        Args:
+            chart_name: Name of the chart to save
+            format: Output format ('png', 'svg', 'pdf', 'eps')
+            filename: Custom filename (without extension)
+
+        Returns:
+            Path to saved file
+        """
+        if format not in self.SUPPORTED_FORMATS:
+            raise ValueError(f"Format must be one of {self.SUPPORTED_FORMATS}")
+
+        if chart_name not in self.charts:
+            raise KeyError(f"Chart '{chart_name}' not found. Available: {list(self.charts.keys())}")
+
+        filename = filename or chart_name
+        filepath = self.output_dir / f"{filename}.{format}"
+
+        self.charts[chart_name].savefig(
+            filepath,
+            format=format,
+            dpi=self.dpi,
+            bbox_inches='tight',
+            facecolor='white',
+            edgecolor='none'
+        )
+        print(f"Saved: {filepath}")
+        return str(filepath)
+
+    def save_all_charts(self, format: str = 'png') -> List[str]:
+        """Save all generated charts.
+
+        Args:
+            format: Output format for all charts
+
+        Returns:
+            List of saved file paths
+        """
+        paths = []
+        for chart_name in self.charts:
+            path = self.save_chart(chart_name, format=format)
+            paths.append(path)
+        return paths
+
+    def generate_all_demo_charts(self) -> Dict[str, plt.Figure]:
+        """Generate all demo charts with sample data."""
+        # Generate sample data
+        np.random.seed(42)
+
+        # ROC curve data
+        y_true = np.random.randint(0, 2, 100)
+        y_prob = np.clip(y_true + np.random.randn(100) * 0.3, 0, 1)
+        y_pred = (y_prob > 0.5).astype(int)
+
+        # Band power data
+        band_results = [
+            {'band': 'delta', 'low_stress_mean': 10, 'low_stress_std': 2,
+             'high_stress_mean': 12, 'high_stress_std': 2.5, 'p_value': 0.03, 'effect_size': 0.4},
+            {'band': 'theta', 'low_stress_mean': 8, 'low_stress_std': 1.5,
+             'high_stress_mean': 11, 'high_stress_std': 2, 'p_value': 0.001, 'effect_size': 0.8},
+            {'band': 'alpha', 'low_stress_mean': 15, 'low_stress_std': 3,
+             'high_stress_mean': 9, 'high_stress_std': 2, 'p_value': 0.0001, 'effect_size': -1.2},
+            {'band': 'beta', 'low_stress_mean': 6, 'low_stress_std': 1,
+             'high_stress_mean': 12, 'high_stress_std': 2, 'p_value': 0.0001, 'effect_size': 1.5},
+            {'band': 'gamma', 'low_stress_mean': 4, 'low_stress_std': 0.8,
+             'high_stress_mean': 5.5, 'high_stress_std': 1, 'p_value': 0.02, 'effect_size': 0.5},
+        ]
+
+        # Effect size data
+        comparisons = [
+            {'name': 'Alpha Power', 'effect_size': -1.2, 'ci_lower': -1.5, 'ci_upper': -0.9},
+            {'name': 'Beta Power', 'effect_size': 1.5, 'ci_lower': 1.2, 'ci_upper': 1.8},
+            {'name': 'Theta/Beta', 'effect_size': -0.8, 'ci_lower': -1.1, 'ci_upper': -0.5},
+            {'name': 'FAA', 'effect_size': 0.4, 'ci_lower': 0.1, 'ci_upper': 0.7},
+        ]
+
+        # Generate all charts
+        self.generate_roc_curve(y_true, y_prob)
+        self.generate_confusion_matrix(y_true, y_pred)
+        self.generate_band_power(band_results)
+        self.generate_effect_sizes(comparisons)
+        self.generate_learning_curves()
+        self.generate_topographical_maps()
+        self.generate_shap_importance()
+        self.generate_cross_subject()
+        self.generate_precision_recall()
+        self.generate_calibration()
+        self.generate_ablation()
+        self.generate_power_analysis()
+
+        return self.charts
+
+    def export_all_formats(self, chart_name: str = None) -> Dict[str, List[str]]:
+        """Export chart(s) in all supported formats.
+
+        Args:
+            chart_name: Specific chart to export, or None for all
+
+        Returns:
+            Dictionary of format -> list of file paths
+        """
+        result = {fmt: [] for fmt in self.SUPPORTED_FORMATS}
+
+        charts_to_export = [chart_name] if chart_name else list(self.charts.keys())
+
+        for fmt in self.SUPPORTED_FORMATS:
+            for name in charts_to_export:
+                try:
+                    path = self.save_chart(name, format=fmt)
+                    result[fmt].append(path)
+                except Exception as e:
+                    print(f"Warning: Failed to export {name} as {fmt}: {e}")
+
+        return result
+
+    def close_all(self):
+        """Close all figures to free memory."""
+        for fig in self.charts.values():
+            plt.close(fig)
+        self.charts.clear()
+
+
+# =============================================================================
+# DOCUMENT EXPORTER CLASS
+# =============================================================================
+
+class AnalysisReportExporter:
+    """
+    Export analysis reports to PDF, Word, and PowerPoint formats.
+
+    Usage from any folder:
+        from src.analysis import AnalysisReportExporter
+
+        exporter = AnalysisReportExporter(output_dir='./reports')
+        exporter.generate_pdf_report(analysis_results)
+        exporter.generate_word_report(analysis_results)
+        exporter.generate_ppt_report(analysis_results, charts)
+    """
+
+    def __init__(self, output_dir: str = './reports'):
+        """Initialize report exporter.
+
+        Args:
+            output_dir: Directory to save reports
+        """
+        self.output_dir = Path(output_dir)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+    def generate_pdf_report(
+        self,
+        results: Dict[str, Any],
+        charts: Dict[str, plt.Figure] = None,
+        filename: str = 'analysis_report.pdf'
+    ) -> str:
+        """Generate PDF report with matplotlib.
+
+        Args:
+            results: Analysis results dictionary
+            charts: Optional dictionary of chart figures
+            filename: Output filename
+
+        Returns:
+            Path to saved PDF
+        """
+        from matplotlib.backends.backend_pdf import PdfPages
+
+        filepath = self.output_dir / filename
+
+        with PdfPages(filepath) as pdf:
+            # Title page
+            fig, ax = plt.subplots(figsize=(11, 8.5))
+            ax.text(0.5, 0.6, 'EEG Stress Classification', fontsize=28, ha='center',
+                   fontweight='bold', transform=ax.transAxes)
+            ax.text(0.5, 0.5, 'Analysis Report', fontsize=22, ha='center',
+                   transform=ax.transAxes)
+            ax.text(0.5, 0.35, f'Generated: {np.datetime64("now")}', fontsize=12,
+                   ha='center', transform=ax.transAxes)
+            ax.axis('off')
+            pdf.savefig(fig, bbox_inches='tight')
+            plt.close(fig)
+
+            # Summary page
+            fig, ax = plt.subplots(figsize=(11, 8.5))
+            ax.text(0.5, 0.95, 'Executive Summary', fontsize=18, ha='center',
+                   fontweight='bold', transform=ax.transAxes)
+
+            summary_text = self._format_summary(results)
+            ax.text(0.1, 0.85, summary_text, fontsize=10, va='top',
+                   transform=ax.transAxes, family='monospace')
+            ax.axis('off')
+            pdf.savefig(fig, bbox_inches='tight')
+            plt.close(fig)
+
+            # Add charts
+            if charts:
+                for name, chart_fig in charts.items():
+                    pdf.savefig(chart_fig, bbox_inches='tight')
+
+        print(f"PDF report saved: {filepath}")
+        return str(filepath)
+
+    def generate_word_report(
+        self,
+        results: Dict[str, Any],
+        charts: Dict[str, plt.Figure] = None,
+        filename: str = 'analysis_report.docx'
+    ) -> str:
+        """Generate Word document report.
+
+        Args:
+            results: Analysis results dictionary
+            charts: Optional dictionary of chart figures
+            filename: Output filename
+
+        Returns:
+            Path to saved document
+        """
+        try:
+            from docx import Document
+            from docx.shared import Inches, Pt
+            from docx.enum.text import WD_ALIGN_PARAGRAPH
+        except ImportError:
+            print("python-docx not installed. Install with: pip install python-docx")
+            return self._generate_text_report(results, filename.replace('.docx', '.txt'))
+
+        filepath = self.output_dir / filename
+        doc = Document()
+
+        # Title
+        title = doc.add_heading('EEG Stress Classification Analysis Report', 0)
+        title.alignment = WD_ALIGN_PARAGRAPH.CENTER
+
+        # Summary section
+        doc.add_heading('Executive Summary', level=1)
+        doc.add_paragraph(self._format_summary(results))
+
+        # Results sections
+        if 'accuracy_analysis' in results:
+            doc.add_heading('Classification Performance', level=1)
+            metrics = results['accuracy_analysis'].get('all_metrics', {})
+            for dataset, values in metrics.items():
+                doc.add_heading(dataset, level=2)
+                table = doc.add_table(rows=1, cols=2)
+                table.style = 'Table Grid'
+                hdr = table.rows[0].cells
+                hdr[0].text = 'Metric'
+                hdr[1].text = 'Value'
+                for k, v in values.items():
+                    row = table.add_row().cells
+                    row[0].text = k.replace('_', ' ').title()
+                    row[1].text = f"{v:.3f}" if isinstance(v, float) else str(v)
+
+        # Add charts
+        if charts:
+            doc.add_heading('Visualizations', level=1)
+            temp_dir = self.output_dir / 'temp_charts'
+            temp_dir.mkdir(exist_ok=True)
+
+            for name, chart_fig in charts.items():
+                temp_path = temp_dir / f'{name}.png'
+                chart_fig.savefig(temp_path, dpi=150, bbox_inches='tight')
+                doc.add_heading(name.replace('_', ' ').title(), level=2)
+                doc.add_picture(str(temp_path), width=Inches(6))
+
+            # Cleanup temp files
+            import shutil
+            shutil.rmtree(temp_dir)
+
+        doc.save(filepath)
+        print(f"Word report saved: {filepath}")
+        return str(filepath)
+
+    def generate_ppt_report(
+        self,
+        results: Dict[str, Any],
+        charts: Dict[str, plt.Figure] = None,
+        filename: str = 'analysis_report.pptx'
+    ) -> str:
+        """Generate PowerPoint presentation.
+
+        Args:
+            results: Analysis results dictionary
+            charts: Optional dictionary of chart figures
+            filename: Output filename
+
+        Returns:
+            Path to saved presentation
+        """
+        try:
+            from pptx import Presentation
+            from pptx.util import Inches, Pt
+            from pptx.enum.text import PP_ALIGN
+        except ImportError:
+            print("python-pptx not installed. Install with: pip install python-pptx")
+            return self._generate_text_report(results, filename.replace('.pptx', '.txt'))
+
+        filepath = self.output_dir / filename
+        prs = Presentation()
+        prs.slide_width = Inches(13.333)
+        prs.slide_height = Inches(7.5)
+
+        # Title slide
+        slide_layout = prs.slide_layouts[0]
+        slide = prs.slides.add_slide(slide_layout)
+        title = slide.shapes.title
+        subtitle = slide.placeholders[1]
+        title.text = "EEG Stress Classification"
+        subtitle.text = "Analysis Report"
+
+        # Summary slide
+        slide_layout = prs.slide_layouts[1]
+        slide = prs.slides.add_slide(slide_layout)
+        title = slide.shapes.title
+        content = slide.placeholders[1]
+        title.text = "Executive Summary"
+        content.text = self._format_summary_ppt(results)
+
+        # Chart slides
+        if charts:
+            temp_dir = self.output_dir / 'temp_charts'
+            temp_dir.mkdir(exist_ok=True)
+
+            slide_layout = prs.slide_layouts[5]  # Blank layout
+            for name, chart_fig in charts.items():
+                slide = prs.slides.add_slide(slide_layout)
+
+                # Add title
+                left = Inches(0.5)
+                top = Inches(0.3)
+                width = Inches(12)
+                height = Inches(0.5)
+                txBox = slide.shapes.add_textbox(left, top, width, height)
+                tf = txBox.text_frame
+                p = tf.paragraphs[0]
+                p.text = name.replace('_', ' ').title()
+                p.font.size = Pt(24)
+                p.font.bold = True
+
+                # Save and add chart
+                temp_path = temp_dir / f'{name}.png'
+                chart_fig.savefig(temp_path, dpi=150, bbox_inches='tight')
+                slide.shapes.add_picture(str(temp_path), Inches(0.5), Inches(1), height=Inches(6))
+
+            # Cleanup
+            import shutil
+            shutil.rmtree(temp_dir)
+
+        prs.save(filepath)
+        print(f"PowerPoint saved: {filepath}")
+        return str(filepath)
+
+    def _format_summary(self, results: Dict) -> str:
+        """Format results as text summary."""
+        lines = []
+        lines.append("=" * 50)
+        lines.append("ANALYSIS SUMMARY")
+        lines.append("=" * 50)
+
+        if 'accuracy_analysis' in results:
+            lines.append("\nClassification Results:")
+            for ds, metrics in results['accuracy_analysis'].get('all_metrics', {}).items():
+                lines.append(f"\n  {ds}:")
+                lines.append(f"    Accuracy: {metrics.get('accuracy', 0):.1f}%")
+                lines.append(f"    F1 Score: {metrics.get('f1_score', 0):.3f}")
+                lines.append(f"    AUC-ROC:  {metrics.get('auc_roc', 0):.3f}")
+
+        if 'clinical_validation' in results:
+            lines.append("\nClinical Validation:")
+            cv = results['clinical_validation']
+            lines.append(f"    Sensitivity: {cv.get('sensitivity', 0)*100:.1f}%")
+            lines.append(f"    Specificity: {cv.get('specificity', 0)*100:.1f}%")
+
+        return "\n".join(lines)
+
+    def _format_summary_ppt(self, results: Dict) -> str:
+        """Format results for PowerPoint (bullet points)."""
+        lines = []
+
+        if 'accuracy_analysis' in results:
+            lines.append("Classification Performance:")
+            for ds, metrics in results['accuracy_analysis'].get('all_metrics', {}).items():
+                acc = metrics.get('accuracy', 0)
+                lines.append(f"  • {ds}: {acc:.1f}% accuracy")
+
+        if 'clinical_validation' in results:
+            lines.append("\nClinical Metrics:")
+            cv = results['clinical_validation']
+            lines.append(f"  • Sensitivity: {cv.get('sensitivity', 0)*100:.1f}%")
+            lines.append(f"  • Specificity: {cv.get('specificity', 0)*100:.1f}%")
+
+        return "\n".join(lines)
+
+    def _generate_text_report(self, results: Dict, filename: str) -> str:
+        """Fallback text report generator."""
+        filepath = self.output_dir / filename
+
+        with open(filepath, 'w') as f:
+            f.write("=" * 60 + "\n")
+            f.write("EEG STRESS CLASSIFICATION ANALYSIS REPORT\n")
+            f.write("=" * 60 + "\n\n")
+            f.write(self._format_summary(results))
+
+        print(f"Text report saved: {filepath}")
+        return str(filepath)
+
+    def export_all_formats(
+        self,
+        results: Dict[str, Any],
+        charts: Dict[str, plt.Figure] = None,
+        base_filename: str = 'analysis_report'
+    ) -> Dict[str, str]:
+        """Export report in all formats.
+
+        Args:
+            results: Analysis results dictionary
+            charts: Optional dictionary of chart figures
+            base_filename: Base name for output files
+
+        Returns:
+            Dictionary of format -> filepath
+        """
+        paths = {}
+        paths['pdf'] = self.generate_pdf_report(results, charts, f'{base_filename}.pdf')
+        paths['docx'] = self.generate_word_report(results, charts, f'{base_filename}.docx')
+        paths['pptx'] = self.generate_ppt_report(results, charts, f'{base_filename}.pptx')
+        return paths
+
+
+# =============================================================================
 # MAIN TEST
 # =============================================================================
 

@@ -96,7 +96,38 @@ from .data_analysis import (
     AnalysisResult
 )
 
+# Comprehensive Analysis Framework (v4)
+from .comprehensive_analysis import (
+    # Data classes
+    FeatureEngineeringResult,
+    ClinicalMetrics,
+    SubjectWiseResult,
+    ReliabilityMetrics,
+    ModelAnalysisResult,
+    CognitiveWorkloadResult,
+
+    # Analysis classes
+    FeatureEngineeringAnalysis,
+    ClinicalValidationAnalysis,
+    SubjectWiseLOSOAnalysis,
+    ReliabilityRobustnessAnalysis,
+    ModelAnalysisFramework,
+    CognitiveWorkloadAnalysis,
+    PerformanceMetricsMatrix,
+    DataQualityAnalysis,
+    AccuracyAnalysis,
+    SubjectAnalysis,
+
+    # Main orchestrator
+    ComprehensiveAnalysisOrchestrator,
+
+    # Demo functions
+    generate_demo_data,
+    run_demo_analysis
+)
+
 from .visualization import (
+    # Core plot functions
     plot_band_power_comparison,
     plot_band_power_heatmap,
     plot_violin_comparison,
@@ -108,7 +139,24 @@ from .visualization import (
     plot_cross_validation_results,
     plot_psd,
     plot_spectrogram,
-    plot_analysis_summary
+    plot_analysis_summary,
+
+    # Advanced plot functions
+    plot_precision_recall_curves,
+    plot_calibration_curves,
+    plot_shap_importance,
+    plot_topographical_maps,
+    plot_learning_curves,
+    plot_component_importance,
+    plot_cumulative_ablation,
+    plot_power_analysis,
+    plot_cross_subject_generalization,
+
+    # Global chart generator (PNG/SVG/PDF/EPS)
+    AnalysisChartGenerator,
+
+    # Document exporter (PDF/Word/PPT)
+    AnalysisReportExporter
 )
 
 __all__ = [
@@ -170,5 +218,43 @@ __all__ = [
     'DatasetInfo',
     'QualityReport',
     'FeatureSet',
-    'AnalysisResult'
+    'AnalysisResult',
+
+    # Comprehensive Analysis Framework (v4)
+    'FeatureEngineeringResult',
+    'ClinicalMetrics',
+    'SubjectWiseResult',
+    'ReliabilityMetrics',
+    'ModelAnalysisResult',
+    'CognitiveWorkloadResult',
+    'FeatureEngineeringAnalysis',
+    'ClinicalValidationAnalysis',
+    'SubjectWiseLOSOAnalysis',
+    'ReliabilityRobustnessAnalysis',
+    'ModelAnalysisFramework',
+    'CognitiveWorkloadAnalysis',
+    'PerformanceMetricsMatrix',
+    'DataQualityAnalysis',
+    'AccuracyAnalysis',
+    'SubjectAnalysis',
+    'ComprehensiveAnalysisOrchestrator',
+    'generate_demo_data',
+    'run_demo_analysis',
+
+    # Advanced Visualization
+    'plot_precision_recall_curves',
+    'plot_calibration_curves',
+    'plot_shap_importance',
+    'plot_topographical_maps',
+    'plot_learning_curves',
+    'plot_component_importance',
+    'plot_cumulative_ablation',
+    'plot_power_analysis',
+    'plot_cross_subject_generalization',
+
+    # Global Chart Generator (PNG/SVG/PDF/EPS)
+    'AnalysisChartGenerator',
+
+    # Document Exporter (PDF/Word/PPT)
+    'AnalysisReportExporter'
 ]

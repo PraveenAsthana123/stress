@@ -99,6 +99,12 @@ EXTRAS_REQUIRE = {
         "flask-cors>=4.0.0",
         "streamlit>=1.28.0",
     ],
+    # Document generation (PDF, Word, PowerPoint)
+    "docs-export": [
+        "python-docx>=0.8.11",
+        "python-pptx>=0.6.21",
+        "reportlab>=4.0.0",
+    ],
     # Experiment tracking
     "tracking": [
         "wandb>=0.15.0",
