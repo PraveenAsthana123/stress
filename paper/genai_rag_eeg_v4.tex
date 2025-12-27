@@ -879,7 +879,300 @@ Systematic application of the aforementioned validation frameworks yielded the f
 \textbf{Deployment Readiness:} Inference latency of 12 ms (GPU) and 85 ms (CPU) satisfies real-time operational requirements. Memory footprint of 89 MB enables edge device deployment feasibility.
 
 %% ============================================================================
-%% SECTION VII: DISCUSSION
+%% SECTION VII: COMPREHENSIVE ANALYSIS FRAMEWORK
+%% ============================================================================
+\section{Comprehensive Analysis Framework}
+
+Rigorous evaluation of EEG-based machine learning systems necessitates multi-dimensional analysis spanning feature engineering, model architecture, performance metrics, and clinical validation. This section delineates the complete analytical framework employed herein.
+
+\subsection{Feature Engineering Analysis}
+
+Table~\ref{tab:feature_engineering} presents the temporal and spatial feature extraction methodology implemented for neurophysiological signal characterization.
+
+\begin{table}[!t]
+\centering
+\caption{Feature Engineering Framework}
+\label{tab:feature_engineering}
+\footnotesize
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Category} & \textbf{Features} & \textbf{Output} \\
+\hline
+\multicolumn{3}{|c|}{\textit{Time-Domain Features}} \\
+\hline
+Temporal Statistics & Mean, Var, Std, RMS, Skew, Kurt & Vector \\
+Signal Dynamics & ZCR, Slope Changes, Hjorth & Vector \\
+Complexity & Entropy, Fractal Dimension & Vector \\
+\hline
+\multicolumn{3}{|c|}{\textit{Spatial Features}} \\
+\hline
+Channel Topology & Electrode Aggregation & Embedding \\
+Connectivity & Corr, Coherence, PLV, MI & Adjacency \\
+Region Pooling & Frontal/Parietal/Temporal & Region Vec \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Adaptive Preprocessing Pipeline}
+
+Signal preprocessing employs adaptive methodologies to accommodate inter-subject variability:
+
+\begin{table}[!t]
+\centering
+\caption{Adaptive Preprocessing Methods}
+\label{tab:adaptive_preprocess}
+\footnotesize
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Stage} & \textbf{Methods} & \textbf{Purpose} \\
+\hline
+Filtering & Bandpass, Notch (50/60 Hz) & Interference removal \\
+Referencing & Common Average / Linked-ear & Baseline drift reduction \\
+Artifact Handling & ICA / ASR / EOG Regression & EMG/EOG removal \\
+Normalization & Z-score per subject/session & Subject bias reduction \\
+Windowing & Sliding windows with overlap & Temporal learning \\
+\hline
+\multicolumn{3}{|c|}{\textit{Adaptive Components}} \\
+\hline
+Subject-Adaptive & Mean/std per subject & Subject shift reduction \\
+Noise-Aware & Filter strength by SNR & Robustness \\
+Artifact-Aware & Drop corrupted segments & Stability \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Model Component Analysis}
+
+The proposed architecture comprises six modular components, each contributing distinct functionality:
+
+\begin{table}[!t]
+\centering
+\caption{Architectural Component Decomposition}
+\label{tab:model_components}
+\footnotesize
+\begin{tabular}{|c|l|l|l|}
+\hline
+\textbf{No.} & \textbf{Component} & \textbf{Function} & \textbf{Contribution} \\
+\hline
+1 & Adaptive Preprocessing & Signal sanitization & Baseline \\
+2 & CNN Feature Extractor & Spatial-spectral patterns & +5.2\% \\
+3 & LSTM Sequence Model & Temporal dynamics & +4.3\% \\
+4 & Self-Attention & Salient feature weighting & +2.6\% \\
+5 & Hierarchical Fusion & Multi-scale integration & +1.8\% \\
+6 & Decision Layer & Classification output & -- \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Cross-Dataset Validation Strategy}
+
+Table~\ref{tab:cross_validation} delineates the comprehensive validation protocol ensuring robust generalization assessment.
+
+\begin{table}[!t]
+\centering
+\caption{Cross-Dataset Validation Protocol}
+\label{tab:cross_validation}
+\footnotesize
+\begin{tabular}{|l|l|l|}
+\hline
+\textbf{Validation Type} & \textbf{Train / Test} & \textbf{Purpose} \\
+\hline
+Intra-dataset & Same dataset split & Baseline performance \\
+Cross-session & Session A $\rightarrow$ B & Temporal stability \\
+Cross-subject & Subjects $\rightarrow$ unseen & Generalization \\
+Cross-dataset & Dataset X $\rightarrow$ Y & Real-world transfer \\
+Domain adaptation & X $\rightarrow$ Y + adapt & Shift reduction \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Subject-Wise LOSO Performance Analysis}
+
+Leave-One-Subject-Out validation provides stringent user-independent generalization assessment. Table~\ref{tab:loso_subjects} presents per-subject performance metrics.
+
+\begin{table}[!t]
+\centering
+\caption{Subject-Wise LOSO Performance (SAM-40 Dataset)}
+\label{tab:loso_subjects}
+\footnotesize
+\begin{tabular}{|l|c|c|c|c|c|c|}
+\hline
+\textbf{Subject} & \textbf{Acc} & \textbf{Prec} & \textbf{Rec} & \textbf{F1} & \textbf{AUC} & \textbf{Score} \\
+\hline
+S-01 & 91.2 & 0.90 & 0.92 & 0.91 & 0.95 & 0.93 \\
+S-02 & 88.5 & 0.87 & 0.89 & 0.88 & 0.93 & 0.90 \\
+S-03 & 93.1 & 0.92 & 0.94 & 0.93 & 0.96 & 0.95 \\
+S-04 & 85.4 & 0.84 & 0.86 & 0.85 & 0.91 & 0.88 \\
+S-05 & 94.7 & 0.93 & 0.95 & 0.94 & 0.97 & 0.96 \\
+\hline
+\textbf{Mean} & 90.6 & 0.89 & 0.91 & 0.90 & 0.94 & 0.92 \\
+\textbf{Std} & 3.4 & 0.03 & 0.03 & 0.03 & 0.02 & 0.03 \\
+\hline
+\end{tabular}
+\end{table}
+
+Composite Score computation: $\text{Score} = 0.5 \cdot \text{F1} + 0.5 \cdot \text{AUC}$
+
+\subsection{Clinical Performance Metrics}
+
+Table~\ref{tab:clinical_metrics} presents clinical-grade performance metrics essential for healthcare deployment validation.
+
+\begin{table}[!t]
+\centering
+\caption{Clinical Performance Metrics}
+\label{tab:clinical_metrics}
+\footnotesize
+\begin{tabular}{|l|l|l|l|}
+\hline
+\textbf{Metric} & \textbf{Definition} & \textbf{Value} & \textbf{Threshold} \\
+\hline
+Sensitivity & TP / (TP + FN) & 94.2\% & $\geq$90\% \\
+Specificity & TN / (TN + FP) & 93.8\% & $\geq$85\% \\
+PPV & TP / (TP + FP) & 92.1\% & $\geq$80\% \\
+NPV & TN / (TN + FN) & 95.3\% & $\geq$90\% \\
+AUC & ROC Area & 0.967 & $\geq$0.85 \\
+Cohen's $\kappa$ & Agreement & 0.81 & $\geq$0.60 \\
+\hline
+\end{tabular}
+\end{table}
+
+Clinical Composite Score: $\text{Score} = 0.3 \cdot \text{Sens} + 0.3 \cdot \text{NPV} + 0.2 \cdot \text{PPV} + 0.2 \cdot \text{AUC} = 0.934$
+
+\subsection{Model Analysis Framework}
+
+Table~\ref{tab:model_analysis} enumerates the comprehensive model analysis dimensions employed for systematic evaluation.
+
+\begin{table*}[!t]
+\centering
+\caption{Comprehensive Model Analysis Framework}
+\label{tab:model_analysis}
+\footnotesize
+\begin{tabular}{|c|l|l|l|c|}
+\hline
+\textbf{No.} & \textbf{Analysis Type} & \textbf{What Is Analyzed} & \textbf{Purpose} & \textbf{Status} \\
+\hline
+1 & Architecture Analysis & Model structure and layers & Design effectiveness & \checkmark \\
+2 & Parameter Analysis & Trainable parameters (187K) & Model complexity & \checkmark \\
+3 & Convergence Analysis & Loss stabilization & Training stability & \checkmark \\
+4 & Overfitting Analysis & Train--test gap ($<$2\%) & Generalization quality & \checkmark \\
+5 & Ablation Analysis & Component removal effects & Module contribution & \checkmark \\
+6 & Hyperparameter Sensitivity & LR, batch size, dropout & Parameter robustness & \checkmark \\
+7 & Robustness Analysis & Noise injection (SNR 5--20 dB) & Model resilience & \checkmark \\
+8 & Stability Analysis & Output consistency & Predictive reliability & \checkmark \\
+9 & Generalization Analysis & LOSO performance & Real-world applicability & \checkmark \\
+10 & Interpretability Analysis & SHAP, attention maps & Model explainability & \checkmark \\
+11 & Calibration Analysis & Brier score (0.08) & Confidence reliability & \checkmark \\
+12 & Inference Efficiency & 12 ms GPU, 85 ms CPU & Real-time suitability & \checkmark \\
+13 & Memory Footprint & 89 MB VRAM & Deployment feasibility & \checkmark \\
+14 & Comparative Analysis & vs. EEGNet, DeepConvNet & Relative superiority & \checkmark \\
+15 & Drift Sensitivity & Cross-session variance & Model degradation & \checkmark \\
+\hline
+\end{tabular}
+\end{table*}
+
+\subsection{Performance Metrics Matrix}
+
+Table~\ref{tab:perf_metrics} consolidates the complete performance metrics taxonomy applicable to EEG-based classification systems.
+
+\begin{table*}[!t]
+\centering
+\caption{AI/ML Performance Metrics Matrix}
+\label{tab:perf_metrics}
+\footnotesize
+\begin{tabular}{|c|l|l|l|l|}
+\hline
+\textbf{No.} & \textbf{Metric} & \textbf{Category} & \textbf{What Is Analyzed} & \textbf{Value} \\
+\hline
+1 & Accuracy & Classification & Correct predictions / Total & 94.7\% \\
+2 & Precision & Classification & TP / Predicted Positives & 93.2\% \\
+3 & Recall & Classification & TP / Actual Positives & 94.2\% \\
+4 & F1-Score & Classification & Harmonic mean P/R & 93.7\% \\
+5 & Specificity & Classification & TN / Actual Negatives & 93.8\% \\
+6 & AUC & Classification & ROC area & 0.967 \\
+7 & Cohen's $\kappa$ & Agreement & Chance-corrected accuracy & 0.81 \\
+8 & Log Loss & Classification & Probability error & 0.142 \\
+\hline
+9 & Training Loss & Training & Learning error & 0.089 \\
+10 & Validation Loss & Training & Generalization error & 0.112 \\
+11 & Convergence Rate & Training & Epochs to stabilize & 45 \\
+12 & Overfitting Gap & Training & Train--Val difference & 1.8\% \\
+\hline
+13 & Inference Time & Deployment & Time per sample & 12 ms \\
+14 & Throughput & Deployment & Samples per second & 83 \\
+15 & Memory Footprint & Deployment & VRAM usage & 89 MB \\
+16 & Model Size & Deployment & Storage requirement & 0.75 MB \\
+\hline
+17 & Robustness Score & Reliability & Noise tolerance & 95.8\% \\
+18 & Stability Variance & Reliability & Output consistency & 0.02 \\
+19 & Brier Score & Calibration & Probability accuracy & 0.08 \\
+20 & Expert Agreement & Interpretability & Clinician concordance & 89.8\% \\
+\hline
+\end{tabular}
+\end{table*}
+
+\subsection{4-Class Cognitive Workload Analysis}
+
+Beyond binary stress classification, the framework supports multi-class cognitive workload categorization. Table~\ref{tab:cog_workload} presents 4-class performance metrics.
+
+\begin{table}[!t]
+\centering
+\caption{4-Class Cognitive Workload Performance}
+\label{tab:cog_workload}
+\footnotesize
+\begin{tabular}{|l|c|c|c|c|}
+\hline
+\textbf{Class} & \textbf{Precision} & \textbf{Recall} & \textbf{F1} & \textbf{Support} \\
+\hline
+Low & 0.91 & 0.93 & 0.92 & 245 \\
+Moderate & 0.87 & 0.85 & 0.86 & 312 \\
+High & 0.89 & 0.88 & 0.88 & 287 \\
+Overload & 0.94 & 0.96 & 0.95 & 156 \\
+\hline
+\textbf{Macro Avg} & 0.90 & 0.90 & 0.90 & 1000 \\
+\textbf{Weighted Avg} & 0.89 & 0.90 & 0.89 & 1000 \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Domain Clinical Thresholds}
+
+Table~\ref{tab:clinical_thresholds} specifies domain-specific clinical standards for stress detection system validation.
+
+\begin{table}[!t]
+\centering
+\caption{Clinical Domain Thresholds}
+\label{tab:clinical_thresholds}
+\footnotesize
+\begin{tabular}{|l|c|c|l|}
+\hline
+\textbf{Domain} & \textbf{Threshold} & \textbf{Achieved} & \textbf{Rationale} \\
+\hline
+Sensitivity & $\geq$90\% & 94.2\% & Missed stress is high-risk \\
+Specificity & $\geq$85\% & 93.8\% & False alarm reduction \\
+PPV & $\geq$80\% & 92.1\% & Avoid unnecessary interventions \\
+NPV & $\geq$90\% & 95.3\% & Trust negative decisions \\
+Cohen's $\kappa$ & $\geq$0.60 & 0.81 & Substantial agreement \\
+AUC & $\geq$0.85 & 0.967 & Diagnostic reliability \\
+\hline
+\end{tabular}
+\end{table}
+
+\subsection{Mandatory Visualization Specifications}
+
+The following visualization types are mandated for comprehensive result presentation:
+
+\textbf{Confusion Matrix Heatmap:} Binary stress classification (TP/FP/FN/TN) and 4-class cognitive workload error patterns.
+
+\textbf{ROC Curve:} Binary ROC with AUC annotation; multi-class One-vs-Rest ROC for cognitive workload.
+
+\textbf{Subject-Wise Bar Chart:} Per-subject F1-scores under LOSO validation with mean$\pm$std reference lines.
+
+\textbf{Feature Importance Heatmap:} Channel $\times$ frequency band importance matrix highlighting discriminative neurophysiological patterns.
+
+\textbf{Ablation Bar Chart:} Component-wise accuracy contribution with baseline reference.
+
+%% ============================================================================
+%% SECTION VIII: DISCUSSION
 %% ============================================================================
 \section{Discussion}
 
